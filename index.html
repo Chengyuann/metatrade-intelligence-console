@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f1ea" />
+    <meta name="description" content="MetaTrade trade finance intelligence console for document review, risk evidence, and RWA asset decisions." />
+    <title>MetaTrade | Trade Finance Intelligence</title>
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="./assets/fonts/Outfit-ExtraBold.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="./assets/fonts/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">跳到主内容</a>
+    <svg class="icon-defs" aria-hidden="true" focusable="false">
+      <symbol id="icon-upload" viewBox="0 0 24 24">
+        <path d="M12 15V4m0 0 4.2 4.2M12 4 7.8 8.2" />
+        <path d="M5 15.5v2.2A2.3 2.3 0 0 0 7.3 20h9.4a2.3 2.3 0 0 0 2.3-2.3v-2.2" />
+      </symbol>
+      <symbol id="icon-play" viewBox="0 0 24 24">
+        <path d="M8 5.8v12.4L18.2 12 8 5.8Z" />
+      </symbol>
+      <symbol id="icon-reset" viewBox="0 0 24 24">
+        <path d="M6.8 8.1A7 7 0 1 1 5 13" />
+        <path d="M6.8 8.1H3.3V4.6" />
+      </symbol>
+      <symbol id="icon-file" viewBox="0 0 24 24">
+        <path d="M7 3.8h7.2L18 7.6v12.6H7V3.8Z" />
+        <path d="M14 4v4h4" />
+        <path d="M9.6 12h4.8M9.6 15.5h3.2" />
+      </symbol>
+      <symbol id="icon-risk" viewBox="0 0 24 24">
+        <path d="M12 3.8 20 19H4L12 3.8Z" />
+        <path d="M12 9v4.4M12 16.7h.01" />
+      </symbol>
+      <symbol id="icon-asset" viewBox="0 0 24 24">
+        <path d="M12 3.5 19.5 8 12 12.5 4.5 8 12 3.5Z" />
+        <path d="m4.5 12 7.5 4.5 7.5-4.5" />
+        <path d="m4.5 16 7.5 4.5 7.5-4.5" />
+      </symbol>
+      <symbol id="icon-download" viewBox="0 0 24 24">
+        <path d="M12 4v10.5m0 0 4-4m-4 4-4-4" />
+        <path d="M5 18.5h14" />
+      </symbol>
+      <symbol id="icon-oracle" viewBox="0 0 24 24">
+        <path d="M12 3.8a8.2 8.2 0 1 0 0 16.4 8.2 8.2 0 0 0 0-16.4Z" />
+        <path d="M8.8 12h6.4M12 8.8v6.4" />
+      </symbol>
+    </svg>
+    <main class="app-shell">
+      <aside class="sidebar" aria-label="MetaTrade 控制台">
+        <div class="brand">
+          <div class="brand-mark" translate="no" aria-hidden="true">M</div>
+          <div>
+            <h1 translate="no">MetaTrade</h1>
+            <p>Quiet intelligence for trade finance</p>
+          </div>
+        </div>
+
+        <section class="panel upload-panel">
+          <div class="panel-heading">
+            <span>单据输入</span>
+            <span class="status-pill" id="modeBadge">演示模式</span>
+          </div>
+          <label class="drop-zone" for="documentInput" id="dropZone">
+            <input id="documentInput" name="tradeDocument" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp" />
+            <span class="drop-icon" aria-hidden="true"><svg><use href="#icon-upload"></use></svg></span>
+            <strong>上传提单 / 发票 / 装箱单</strong>
+            <small id="fileHint">支持 PDF 与图片文件</small>
+          </label>
+          <div class="language-strip" aria-label="Supported languages">
+            <span>语言</span>
+            <b>Chinese</b>
+            <b>English</b>
+          </div>
+          <div class="backend-status" aria-label="后端模型网关">
+            <span>后端模型网关 / Backend Model Gateway</span>
+            <strong>MetaTrade Multimodal Gateway</strong>
+            <small>连接参数由本地后端代理统一托管，前端不暴露敏感配置。</small>
+          </div>
+          <div class="button-row">
+            <button class="primary-btn" id="runBtn" type="button">
+              <span aria-hidden="true"><svg><use href="#icon-play"></use></svg></span>
+              开始审单
+            </button>
+            <button class="icon-btn" id="resetBtn" type="button" aria-label="重置"><svg aria-hidden="true"><use href="#icon-reset"></use></svg></button>
+          </div>
+        </section>
+
+        <section class="panel compact">
+          <div class="panel-heading">
+            <span>样例资产</span>
+            <span translate="no">CN-SZX / MY-PKG</span>
+          </div>
+          <dl class="asset-facts">
+            <div>
+              <dt>货值</dt>
+              <dd>¥2,800,000</dd>
+            </div>
+            <div>
+              <dt>账期</dt>
+              <dd>30 天</dd>
+            </div>
+            <div>
+              <dt>在途周期</dt>
+              <dd>18-22 天</dd>
+            </div>
+          </dl>
+        </section>
+      </aside>
+
+      <section class="workspace" id="workspace" aria-live="polite">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">AI trade finance atelier</p>
+            <h2>把贸易单据、风险证据与 RWA 决策收束到一个安静、可信的工作台</h2>
+          </div>
+          <div class="top-actions">
+            <button class="ghost-btn active" type="button" data-focus-target="documentPanel" aria-pressed="true"><svg aria-hidden="true"><use href="#icon-file"></use></svg>审单视图</button>
+            <button class="ghost-btn" type="button" data-focus-target="riskPanel" aria-pressed="false"><svg aria-hidden="true"><use href="#icon-risk"></use></svg>风控视图</button>
+            <button class="ghost-btn" type="button" data-focus-target="financePanel" aria-pressed="false"><svg aria-hidden="true"><use href="#icon-asset"></use></svg>资产视图</button>
+          </div>
+        </header>
+
+        <section class="decision-layer" aria-label="智能决策摘要">
+          <article class="panel decision-hero">
+            <div class="decision-kicker">
+              <span class="live-dot" aria-hidden="true"></span>
+              <span id="decisionState">Awaiting intelligence</span>
+            </div>
+            <h3 id="decisionTitle">等待贸易单据审单</h3>
+            <p id="decisionCopy">上传单据或使用样例资产后，系统将联动 DeepSeek-OCR-2 光学上下文压缩、VACOT 视觉审计、Agentic RAG 合规哨兵与动态 RWA 治理。</p>
+            <div class="decision-footer">
+              <span id="decisionAction">下一步：运行审单链路</span>
+              <span id="decisionMode">Demo / API Ready</span>
+            </div>
+          </article>
+          <article class="panel decision-metric">
+            <span>可信度</span>
+            <strong id="decisionConfidence">--</strong>
+            <small>VACOT audit</small>
+          </article>
+          <article class="panel decision-metric">
+            <span>风险暴露</span>
+            <strong id="decisionRisk">--</strong>
+            <small>Dynamic score</small>
+          </article>
+          <article class="panel decision-metric">
+            <span>融资空间</span>
+            <strong id="decisionExposure">--</strong>
+            <small>AI oracle adjusted</small>
+          </article>
+        </section>
+
+        <section class="ops-strip" aria-label="系统运行指标">
+          <div>
+            <span>OCR Engine</span>
+            <strong>DeepSeek-OCR-2</strong>
+          </div>
+          <div>
+            <span>VL Audit</span>
+            <strong>VACOT Agent</strong>
+          </div>
+          <div>
+            <span>Risk Graph</span>
+            <strong>Agentic RAG</strong>
+          </div>
+          <div>
+            <span>Asset State</span>
+            <strong>AI Oracle</strong>
+          </div>
+        </section>
+
+        <section class="pipeline" aria-label="处理流程">
+          <article class="step-card active" data-step="ocr">
+            <span class="step-index">01</span>
+            <h3>光学压缩感知</h3>
+            <p>DeepSeek-OCR-2 执行光学上下文压缩、语义去噪与结构化字段输出。</p>
+          </article>
+          <article class="step-card" data-step="vl">
+            <span class="step-index">02</span>
+            <h3>VACOT 审计</h3>
+            <p>多模态理解复核遮挡、水印、折痕与低置信度金融字段。</p>
+          </article>
+          <article class="step-card" data-step="rag">
+            <span class="step-index">03</span>
+            <h3>合规 RAG</h3>
+            <p>穿透货物描述，检索危规、制裁与单据完整性要求。</p>
+          </article>
+          <article class="step-card" data-step="rwa">
+            <span class="step-index">04</span>
+            <h3>动态 RWA 治理</h3>
+            <p>AI 预言机驱动风险评分、LTV 与资产凭证状态转移。</p>
+          </article>
+        </section>
+
+        <section class="dashboard">
+          <article class="hero-band">
+            <img src="./assets/trade-route.svg" width="1200" height="360" fetchpriority="high" alt="跨境航运贸易路线" />
+            <div class="hero-copy">
+            <span>Live trade route</span>
+            <strong>深圳港装船后，AI 预言机将 AIS、港口拥堵与合规风险联动为动态 LTV 与链下资产凭证。</strong>
+            </div>
+          </article>
+          <article class="panel document-panel" id="documentPanel" tabindex="-1">
+            <div class="panel-heading">
+              <span>单据预览</span>
+              <span id="docStatus">待上传</span>
+            </div>
+            <div class="document-preview" id="documentPreview">
+              <div class="mock-document">
+                <span translate="no">BILL OF LADING</span>
+                <strong translate="no">MAEU-93827104</strong>
+                <p>Shipper: Shenzhen Huadong Electronics Co., Ltd.</p>
+                <p>Consignee: Klang Distribution Sdn. Bhd.</p>
+                <p>Goods: Bluetooth Headphones with Lithium Batteries</p>
+                <p>Gross Weight: 4,820 KG</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel fields-panel">
+            <div class="panel-heading">
+              <span>关键字段</span>
+              <span id="confidenceBadge">置信度 --</span>
+            </div>
+            <div class="fields-grid" id="fieldsGrid"></div>
+          </article>
+
+          <article class="panel risk-panel" id="riskPanel" tabindex="-1">
+            <div class="panel-heading">
+              <span>合规与风险</span>
+              <span id="riskLevel">待评估</span>
+            </div>
+            <div class="risk-meter">
+              <svg viewBox="0 0 120 120" role="img" aria-label="风险评分">
+                <circle class="meter-bg" cx="60" cy="60" r="50"></circle>
+                <circle class="meter-value" id="meterValue" cx="60" cy="60" r="50"></circle>
+              </svg>
+              <div>
+                <strong id="riskScore">--</strong>
+                <span>Dynamic Risk Score</span>
+              </div>
+            </div>
+            <ul class="risk-list" id="riskList"></ul>
+          </article>
+
+          <article class="panel finance-panel" id="financePanel" tabindex="-1">
+            <div class="panel-heading">
+              <span>融资建议</span>
+              <span id="assetState">未确权</span>
+            </div>
+            <div class="finance-grid">
+              <div>
+                <span>建议 LTV</span>
+                <strong id="ltvValue">--</strong>
+              </div>
+              <div>
+                <span>可融资额</span>
+                <strong id="loanValue">--</strong>
+              </div>
+              <div>
+                <span>资产评级</span>
+                <strong id="ratingValue">--</strong>
+              </div>
+            </div>
+            <button class="secondary-btn" id="mintBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-asset"></use></svg>生成 RWA 资产凭证</button>
+            <div class="nft-state" aria-label="NFT asset state">
+              <div>
+                <span>NFT Token Hash</span>
+                <strong id="tokenIdValue">--</strong>
+              </div>
+              <div>
+                <span>Asset Status</span>
+                <strong id="assetStatusValue">PENDING</strong>
+              </div>
+              <div>
+                <span>Financing Unlocked</span>
+                <strong id="financingUnlockedValue">--</strong>
+              </div>
+              <div>
+                <span>Transfer Lock</span>
+                <strong id="transferLockValue">OFF</strong>
+              </div>
+            </div>
+            <div class="oracle-sim">
+              <label for="newsInput">News-driven risk simulation</label>
+              <textarea id="newsInput" rows="3">Typhoon affects vessel route, 3-day delay expected</textarea>
+              <button class="download-btn" id="simulateNewsBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-oracle"></use></svg>Simulate on-chain status update</button>
+              <pre id="oracleOutput">等待 AI 预言机事件。</pre>
+            </div>
+            <div class="mint-animation" id="mintAnimation" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+              <b>HASHING / SIGNING / MINTING</b>
+            </div>
+            <div class="download-actions" aria-label="资产下载操作">
+              <button class="download-btn" id="downloadJsonBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-download"></use></svg>Download extracted JSON</button>
+              <button class="download-btn" id="downloadReportBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-download"></use></svg>Download compliance report</button>
+            </div>
+            <p class="credential-note" id="credentialNote">资产凭证生成后可下载审计 JSON 与合规报告。</p>
+          </article>
+        </section>
+
+        <section class="insight-row">
+          <section class="panel evidence-panel" aria-label="模型证据链">
+            <div class="panel-heading">
+              <span>模型证据链</span>
+              <span id="evidenceBadge">待生成</span>
+            </div>
+            <div class="evidence-grid" id="evidenceGrid"></div>
+          </section>
+
+          <section class="panel timeline-panel">
+            <div class="panel-heading">
+              <span>事件时间线</span>
+              <span id="latencyValue">-- ms</span>
+            </div>
+            <ol class="timeline" id="timeline" aria-live="polite"></ol>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>

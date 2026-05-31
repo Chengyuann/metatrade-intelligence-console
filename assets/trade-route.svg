@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="Cross border shipping route">
+  <defs>
+    <linearGradient id="stone" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbf7ee"/>
+      <stop offset="0.52" stop-color="#e4ded2"/>
+      <stop offset="1" stop-color="#cfd8ce"/>
+    </linearGradient>
+    <linearGradient id="route" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#254d40"/>
+      <stop offset="1" stop-color="#c9a66b"/>
+    </linearGradient>
+    <filter id="route-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <path id="shipping-path" d="M168 254 C318 188 430 166 548 190 C684 218 722 268 844 224 C932 192 996 152 1080 150"/>
+    <style>
+      .route-line {
+        animation: dash-flow 3.8s linear infinite;
+      }
+      .vessel {
+        animation: vessel-breathe 5.2s ease-in-out infinite;
+      }
+      .oracle-card {
+        animation: float-card 5.8s ease-in-out infinite;
+      }
+      @keyframes dash-flow {
+        to { stroke-dashoffset: -70; }
+      }
+      @keyframes vessel-breathe {
+        50% { transform: translate(-68px, -37px) scale(1.018); }
+      }
+      @keyframes float-card {
+        50% { transform: translate(815px, 248px); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .route-line,
+        .vessel,
+        .oracle-card {
+          animation: none;
+        }
+      }
+    </style>
+  </defs>
+  <rect width="1200" height="420" fill="url(#stone)"/>
+  <path d="M0 330 C150 280 286 346 446 298 C585 256 682 224 804 250 C960 284 1034 188 1200 210 L1200 420 L0 420 Z" fill="#fffefa" opacity="0.62"/>
+  <path d="M0 94 C152 142 252 88 398 124 C542 158 648 76 808 105 C982 136 1030 72 1200 104 L1200 0 L0 0 Z" fill="#ffffff" opacity="0.38"/>
+  <g opacity="0.22" stroke="#2f3d33" stroke-width="1" fill="none">
+    <path d="M86 70 L230 128 L178 238 L52 204 Z"/>
+    <path d="M758 54 L914 98 L884 216 L722 178 Z"/>
+    <path d="M438 72 L590 126 L554 270 L386 218 Z"/>
+    <path d="M248 322 L348 278 L432 326 L316 374 Z"/>
+  </g>
+  <g opacity="0.3" stroke="#2f3d33" stroke-width="1">
+    <path d="M0 210 H1200"/>
+    <path d="M0 140 H1200"/>
+    <path d="M0 280 H1200"/>
+    <path d="M210 0 V420"/>
+    <path d="M520 0 V420"/>
+    <path d="M880 0 V420"/>
+  </g>
+  <use href="#shipping-path" fill="none" stroke="#254d40" stroke-width="18" opacity="0.12" filter="url(#route-shadow)"/>
+  <use class="route-line" href="#shipping-path" fill="none" stroke="url(#route)" stroke-width="5" stroke-linecap="round" stroke-dasharray="16 18"/>
+  <g>
+    <circle cx="168" cy="254" r="12" fill="#fffefa" stroke="#254d40" stroke-width="2"/>
+    <circle cx="1080" cy="150" r="12" fill="#fffefa" stroke="#254d40" stroke-width="2"/>
+  </g>
+  <g font-family="IBM Plex Sans Condensed, Arial, sans-serif" fill="#254d40">
+    <text x="104" y="292" font-size="24" font-weight="700">Shenzhen</text>
+    <text x="104" y="318" font-size="15" opacity="0.68">CN-SZX Port</text>
+    <text x="1008" y="130" font-size="24" font-weight="700">Port Klang</text>
+    <text x="1008" y="156" font-size="15" opacity="0.68">MY-PKG</text>
+  </g>
+  <g>
+    <animateMotion dur="9.5s" repeatCount="indefinite" rotate="auto" keyPoints="0.25;0.82;0.25" keyTimes="0;0.5;1" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1">
+      <mpath href="#shipping-path"/>
+    </animateMotion>
+    <g class="vessel" transform="translate(-68 -35)">
+      <path d="M0 38 L58 38 L76 20 L112 20 L134 38 L154 38 L142 64 L15 64 Z" fill="#fffefa" stroke="#254d40" stroke-width="2"/>
+      <rect x="58" y="5" width="48" height="22" rx="3" fill="#c9a66b"/>
+      <rect x="20" y="43" width="28" height="8" fill="#3f6d5c" opacity="0.72"/>
+      <rect x="54" y="43" width="28" height="8" fill="#3f6d5c" opacity="0.72"/>
+      <rect x="88" y="43" width="28" height="8" fill="#3f6d5c" opacity="0.72"/>
+    </g>
+  </g>
+  <g class="oracle-card" transform="translate(815 260)">
+    <rect x="0" y="0" width="174" height="64" rx="8" fill="#fffefa" opacity="0.9" stroke="#254d40" stroke-opacity="0.18"/>
+    <text x="16" y="25" font-family="JetBrains Mono, monospace" font-size="13" fill="#788076">AI Oracle</text>
+    <text x="16" y="47" font-family="IBM Plex Sans Condensed, Arial" font-size="18" font-weight="700" fill="#254d40">Port risk +12%</text>
+  </g>
+</svg>
