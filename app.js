@@ -13,6 +13,45 @@ const LOCAL_API_HOSTS = new Set(["127.0.0.1", "localhost", "::1"]);
 const PLAY_ICON = '<span aria-hidden="true"><svg><use href="#icon-play"></use></svg></span>';
 const ASSET_ICON = '<svg aria-hidden="true"><use href="#icon-asset"></use></svg>';
 
+const productModules = {
+  perception: {
+    kicker: "Perception layer",
+    title: "单据感知不是只做 OCR，而是把字段变成可复核证据。",
+    copy: "DeepSeek-OCR-2 负责光学上下文压缩，VACOT 视觉审计负责复核遮挡、水印、折痕和低置信字段。运营用户先看到结论，再决定是否打开字段证据。",
+    metric: "98.2%",
+    metricLabel: "field confidence",
+    bullets: ["提单号、货值、港口和货物描述统一结构化", "低置信字段进入视觉复核队列", "保留证据链，方便银行风控复盘"],
+    target: "documentPanel",
+  },
+  risk: {
+    kicker: "Risk evidence",
+    title: "风控结论必须带理由，不只给一个红黄绿标签。",
+    copy: "Agentic RAG 把货物描述、航线、制裁名单、危规文件和港口事件拆成可追溯提示，帮助审单员判断是否放行、补件或调低授信。",
+    metric: "48/100",
+    metricLabel: "dynamic risk",
+    bullets: ["识别锂电池、MSDS、UN38.3 等隐含要求", "把 AIS 和港口拥堵事件合并进风险评分", "风险原因以审计语言输出"],
+    target: "riskPanel",
+  },
+  asset: {
+    kicker: "Asset governance",
+    title: "资产确权要跟风控同步，而不是在审完单后另起流程。",
+    copy: "系统根据风险评分和单据可信度生成建议 LTV、评级、可融资额与 RWA 凭证状态，让贸易资产从单据流转到资金流。",
+    metric: "CNY 1.96M",
+    metricLabel: "finance space",
+    bullets: ["LTV 随风险评分动态调整", "RWA 凭证记录资产状态和审计日志", "下载 JSON 与合规报告用于后续对接"],
+    target: "financePanel",
+  },
+  oracle: {
+    kicker: "AI oracle",
+    title: "在途事件改变资产状态，页面必须把变化讲清楚。",
+    copy: "台风、延误、港口拥堵等新闻事件会触发 AI 预言机模拟，更新融资解锁比例、转让锁和资产状态。",
+    metric: "60%",
+    metricLabel: "unlock after event",
+    bullets: ["输入新闻事件即可模拟链上指令", "高风险事件自动打开转让锁", "时间线保留每次状态变更"],
+    target: "financePanel",
+  },
+};
+
 const state = {
   file: null,
   fields: { ...demoFields },
@@ -50,6 +89,10 @@ const els = {
   assetStatusValue: document.querySelector("#assetStatusValue"),
   financingUnlockedValue: document.querySelector("#financingUnlockedValue"),
   transferLockValue: document.querySelector("#transferLockValue"),
+  routeEta: document.querySelector("#routeEta"),
+  routeRisk: document.querySelector("#routeRisk"),
+  routeAsset: document.querySelector("#routeAsset"),
+  routeSignal: document.querySelector("#routeSignal"),
   newsInput: document.querySelector("#newsInput"),
   simulateNewsBtn: document.querySelector("#simulateNewsBtn"),
   oracleOutput: document.querySelector("#oracleOutput"),
@@ -70,7 +113,72 @@ const els = {
   downloadReportBtn: document.querySelector("#downloadReportBtn"),
   credentialNote: document.querySelector("#credentialNote"),
   viewButtons: document.querySelectorAll(".ghost-btn[data-focus-target]"),
+  moduleCards: document.querySelectorAll(".module-card"),
+  moduleKicker: document.querySelector("#moduleKicker"),
+  moduleTitle: document.querySelector("#moduleTitle"),
+  moduleCopy: document.querySelector("#moduleCopy"),
+  moduleBullets: document.querySelector("#moduleBullets"),
+  moduleMetric: document.querySelector("#moduleMetric"),
+  moduleMetricLabel: document.querySelector("#moduleMetricLabel"),
+  moduleJumpBtn: document.querySelector("#moduleJumpBtn"),
 };
+
+function setupRevealEffects() {
+  const items = Array.from(document.querySelectorAll(".panel, .step-card, .hero-band, .ops-strip, .story-overview, .module-detail-band"));
+  items.forEach((item, index) => {
+    item.classList.add("reveal-item", "spotlight-card");
+    item.style.setProperty("--reveal-index", String(index % 8));
+  });
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.12 },
+    );
+    items.forEach((item) => observer.observe(item));
+  } else {
+    items.forEach((item) => item.classList.add("is-visible"));
+  }
+
+  items.forEach((item) => {
+    item.addEventListener("pointermove", (event) => {
+      const rect = item.getBoundingClientRect();
+      item.style.setProperty("--spot-x", `${event.clientX - rect.left}px`);
+      item.style.setProperty("--spot-y", `${event.clientY - rect.top}px`);
+    });
+  });
+}
+
+function focusWorkbenchPanel(targetId) {
+  const target = document.querySelector(`#${targetId}`);
+  if (!target) return;
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+  target.focus({ preventScroll: true });
+  target.classList.remove("focus-pulse");
+  requestAnimationFrame(() => target.classList.add("focus-pulse"));
+}
+
+function renderProductModule(moduleKey = "perception") {
+  const module = productModules[moduleKey] || productModules.perception;
+  els.moduleCards.forEach((card) => {
+    const active = card.dataset.module === moduleKey;
+    card.classList.toggle("active", active);
+    card.setAttribute("aria-pressed", String(active));
+  });
+  els.moduleKicker.textContent = module.kicker;
+  els.moduleTitle.textContent = module.title;
+  els.moduleCopy.textContent = module.copy;
+  els.moduleMetric.textContent = module.metric;
+  els.moduleMetricLabel.textContent = module.metricLabel;
+  els.moduleBullets.innerHTML = module.bullets.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  els.moduleJumpBtn.dataset.target = module.target;
+}
 
 function formatCurrency(value) {
   return new Intl.NumberFormat("zh-CN", {
@@ -213,7 +321,20 @@ function renderFields(fields = state.fields) {
 function setActiveStep(stepName) {
   document.querySelectorAll(".step-card").forEach((card) => {
     card.classList.toggle("active", card.dataset.step === stepName);
+    card.classList.toggle("is-running", card.dataset.step === stepName);
   });
+}
+
+function updateRouteStatus({
+  eta = "18-22d",
+  risk = "+12%",
+  asset = "PENDING",
+  signal = "STANDBY",
+} = {}) {
+  els.routeEta.textContent = eta;
+  els.routeRisk.textContent = risk;
+  els.routeAsset.textContent = asset;
+  els.routeSignal.textContent = signal;
 }
 
 function renderRisk(result) {
@@ -327,6 +448,7 @@ async function fileToDataUrl(file) {
 async function runOcr(documentData) {
   setActiveStep("ocr");
   els.docStatus.textContent = endpointMode() ? "后端模型识别中" : "静态演示识别中";
+  updateRouteStatus({ eta: "SCANNING", risk: "CALC", asset: "PENDING", signal: "OCR" });
   if (!endpointMode() || !state.file || !documentData) {
     pushTimeline("光学压缩感知", endpointMode() ? "未上传文件，使用样例单据进入演示链路" : "公开静态站点使用样例单据进入演示链路", "DEMO");
     await sleep(760);
@@ -360,6 +482,7 @@ async function runOcr(documentData) {
 async function runVisionAudit(documentData, fields) {
   setActiveStep("vl");
   els.docStatus.textContent = "VACOT 视觉审计中";
+  updateRouteStatus({ eta: "18-22d", risk: "VERIFY", asset: "PENDING", signal: "VACOT" });
   pushTimeline("VACOT 审计", "Qwen3-VL 审计 Agent 复核水印、遮挡与低置信度字段", "RUN");
 
   await sleep(820);
@@ -408,6 +531,7 @@ async function runReview() {
 
     setActiveStep("rag");
     els.docStatus.textContent = "Agentic RAG 推理中";
+    updateRouteStatus({ eta: "18-22d", risk: "SCORING", asset: "PENDING", signal: "RAG" });
     pushTimeline("Agentic RAG", "推理智能体识别隐含危险品属性并规划合规检索", "RUN");
     await sleep(640);
     const risk = ocr.risk || inferRisk(state.fields);
@@ -421,6 +545,12 @@ async function runReview() {
     const finance = ocr.finance || inferFinance(state.riskScore);
     const loan = renderFinance(finance);
     renderOracleState(ocr.oracle || { assetStatus: "IN_TRANSIT", transferLocked: false, financingUnlocked: 0.6 });
+    updateRouteStatus({
+      eta: "18-22d",
+      risk: `+${Math.max(8, risk.score - 36)}%`,
+      asset: "IN_TRANSIT",
+      signal: "READY",
+    });
     updateDecision({
       stateLabel: "Decision Ready",
       title: `${risk.level}资产，可进入确权融资`,
@@ -542,6 +672,7 @@ function resetApp() {
   els.financingUnlockedValue.textContent = "--";
   els.transferLockValue.textContent = "OFF";
   els.oracleOutput.textContent = "等待 AI 预言机事件。";
+  updateRouteStatus();
   setDownloadReady(false);
   els.mintBtn.innerHTML = `${ASSET_ICON} 生成 RWA 资产凭证`;
   els.modeBadge.textContent = endpointMode() ? "后端模型模式" : "演示模式";
@@ -589,6 +720,12 @@ els.mintBtn.addEventListener("click", () => {
   els.assetStatusValue.textContent = "IN_TRANSIT";
   els.financingUnlockedValue.textContent = "60%";
   els.transferLockValue.textContent = "OFF";
+  updateRouteStatus({
+    eta: "18-22d",
+    risk: els.decisionRisk.textContent === "--" ? "+12%" : els.routeRisk.textContent,
+    asset: "MINTED",
+    signal: "SIGNED",
+  });
   els.mintBtn.innerHTML = `${ASSET_ICON} RWA 凭证已生成`;
   updateDecision({
     stateLabel: "Credential Ready",
@@ -620,6 +757,12 @@ els.simulateNewsBtn.addEventListener("click", async () => {
     ? await callBackend("/api/oracle-risk", { news: els.newsInput.value })
     : simulateOracleRisk(els.newsInput.value);
   renderOracleState(result);
+  updateRouteStatus({
+    eta: result.transferLocked ? "21-25d" : "18-22d",
+    risk: result.transferLocked ? "+24%" : "+10%",
+    asset: result.assetStatus || "IN_TRANSIT",
+    signal: result.riskLevel || "LOW",
+  });
   els.oracleOutput.textContent = JSON.stringify({
     riskLevel: result.riskLevel,
     reason: result.reason,
@@ -648,20 +791,26 @@ els.viewButtons.forEach((button) => {
       item.setAttribute("aria-pressed", String(active));
     });
 
-    const target = document.querySelector(`#${button.dataset.focusTarget}`);
-    if (!target) return;
-    target.scrollIntoView({ behavior: "smooth", block: "center" });
-    target.focus({ preventScroll: true });
-    target.classList.remove("focus-pulse");
-    requestAnimationFrame(() => target.classList.add("focus-pulse"));
+    focusWorkbenchPanel(button.dataset.focusTarget);
   });
+});
+
+els.moduleCards.forEach((card) => {
+  card.addEventListener("click", () => renderProductModule(card.dataset.module));
+});
+
+els.moduleJumpBtn.addEventListener("click", () => {
+  focusWorkbenchPanel(els.moduleJumpBtn.dataset.target || "documentPanel");
 });
 
 renderFields();
 renderTimeline();
 renderDefaultEvidence();
+renderProductModule("perception");
 setDownloadReady(false);
 els.modeBadge.textContent = endpointMode() ? "后端模型模式" : "演示模式";
+updateRouteStatus();
+setupRevealEffects();
 
 function buildExtractedJson({ risk = null, finance = null, loan = null, latencyMs = null } = {}) {
   return {

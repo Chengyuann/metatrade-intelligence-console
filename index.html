@@ -47,6 +47,10 @@
         <path d="M12 3.8a8.2 8.2 0 1 0 0 16.4 8.2 8.2 0 0 0 0-16.4Z" />
         <path d="M8.8 12h6.4M12 8.8v6.4" />
       </symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24">
+        <path d="M5 12h14" />
+        <path d="m13.8 6.8 5.2 5.2-5.2 5.2" />
+      </symbol>
     </svg>
     <main class="app-shell">
       <aside class="sidebar" aria-label="MetaTrade 控制台">
@@ -54,7 +58,7 @@
           <div class="brand-mark" translate="no" aria-hidden="true">M</div>
           <div>
             <h1 translate="no">MetaTrade</h1>
-            <p>Quiet intelligence for trade finance</p>
+            <p>Trade finance intelligence</p>
           </div>
         </div>
 
@@ -75,9 +79,9 @@
             <b>English</b>
           </div>
           <div class="backend-status" aria-label="后端模型网关">
-            <span>后端模型网关 / Backend Model Gateway</span>
-            <strong>MetaTrade Multimodal Gateway</strong>
-            <small>连接参数由本地后端代理统一托管，前端不暴露敏感配置。</small>
+            <span>模型网关</span>
+            <strong>API-ready local proxy</strong>
+            <small>敏感配置保留在后端代理。</small>
           </div>
           <div class="button-row">
             <button class="primary-btn" id="runBtn" type="button">
@@ -114,7 +118,8 @@
         <header class="topbar">
           <div>
             <p class="eyebrow">AI trade finance atelier</p>
-            <h2>把贸易单据、风险证据与 RWA 决策收束到一个安静、可信的工作台</h2>
+            <h2>一张贸易单据，变成可融资资产。</h2>
+            <p class="hero-subcopy">首屏先看状态。继续下滑，按模块进入单据、风控、资产和预言机细节。</p>
           </div>
           <div class="top-actions">
             <button class="ghost-btn active" type="button" data-focus-target="documentPanel" aria-pressed="true"><svg aria-hidden="true"><use href="#icon-file"></use></svg>审单视图</button>
@@ -122,6 +127,101 @@
             <button class="ghost-btn" type="button" data-focus-target="financePanel" aria-pressed="false"><svg aria-hidden="true"><use href="#icon-asset"></use></svg>资产视图</button>
           </div>
         </header>
+
+        <article class="hero-band">
+          <img src="./assets/trade-route.svg" width="1200" height="360" fetchpriority="high" alt="跨境航运贸易路线" />
+          <div class="route-console" aria-label="航线实时状态">
+            <div>
+              <span>ETA window</span>
+              <strong id="routeEta">18-22d</strong>
+            </div>
+            <div>
+              <span>Port risk</span>
+              <strong id="routeRisk">+12%</strong>
+            </div>
+            <div>
+              <span>Asset state</span>
+              <strong id="routeAsset">PENDING</strong>
+            </div>
+            <div>
+              <span>Oracle signal</span>
+              <strong id="routeSignal">STANDBY</strong>
+            </div>
+          </div>
+          <div class="route-reticle" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="hero-copy">
+            <span>Live trade corridor</span>
+            <strong>航线、风险、LTV 用同一张图对齐。</strong>
+          </div>
+          <a class="scroll-cue" href="#storyModules" aria-label="查看产品模块">
+            <span>Scroll</span>
+            <svg aria-hidden="true"><use href="#icon-arrow"></use></svg>
+          </a>
+        </article>
+
+        <section class="story-overview" id="storyModules" aria-label="MetaTrade 产品模块">
+          <div class="story-intro">
+            <p class="eyebrow">Product modules</p>
+            <h2>不把说明塞进首屏。把复杂贸易金融拆成四个可进入的场景。</h2>
+          </div>
+          <div class="module-grid" role="list">
+            <button class="module-card active" type="button" data-module="perception" aria-pressed="true">
+              <span class="module-icon"><svg aria-hidden="true"><use href="#icon-file"></use></svg></span>
+              <span class="module-index">01</span>
+              <strong>单据感知</strong>
+              <small>从 PDF 或图片抽取字段，保留可回看证据。</small>
+            </button>
+            <button class="module-card" type="button" data-module="risk" aria-pressed="false">
+              <span class="module-icon"><svg aria-hidden="true"><use href="#icon-risk"></use></svg></span>
+              <span class="module-index">02</span>
+              <strong>风险证据</strong>
+              <small>把危险品、制裁、港口事件变成审计线索。</small>
+            </button>
+            <button class="module-card" type="button" data-module="asset" aria-pressed="false">
+              <span class="module-icon"><svg aria-hidden="true"><use href="#icon-asset"></use></svg></span>
+              <span class="module-index">03</span>
+              <strong>资产确权</strong>
+              <small>LTV、评级、融资额和凭证状态同步生成。</small>
+            </button>
+            <button class="module-card" type="button" data-module="oracle" aria-pressed="false">
+              <span class="module-icon"><svg aria-hidden="true"><use href="#icon-oracle"></use></svg></span>
+              <span class="module-index">04</span>
+              <strong>预言机监听</strong>
+              <small>新闻和航运事件触发链上资产状态更新。</small>
+            </button>
+          </div>
+        </section>
+
+        <section class="module-detail-band" id="moduleDetail" aria-live="polite">
+          <div class="module-stage" aria-hidden="true">
+            <div class="stage-grid">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="stage-orbit">
+              <b id="moduleMetric">98.2%</b>
+              <small id="moduleMetricLabel">field confidence</small>
+            </div>
+          </div>
+          <div class="module-detail-copy">
+            <span id="moduleKicker">Perception layer</span>
+            <h3 id="moduleTitle">单据感知不是只做 OCR，而是把字段变成可复核证据。</h3>
+            <p id="moduleCopy">DeepSeek-OCR-2 负责光学上下文压缩，VACOT 视觉审计负责复核遮挡、水印、折痕和低置信字段。运营用户先看到结论，再决定是否打开字段证据。</p>
+            <ul id="moduleBullets"></ul>
+            <button class="module-jump" id="moduleJumpBtn" type="button">
+              查看对应工作台
+              <svg aria-hidden="true"><use href="#icon-arrow"></use></svg>
+            </button>
+          </div>
+        </section>
 
         <section class="decision-layer" aria-label="智能决策摘要">
           <article class="panel decision-hero">
@@ -196,13 +296,6 @@
         </section>
 
         <section class="dashboard">
-          <article class="hero-band">
-            <img src="./assets/trade-route.svg" width="1200" height="360" fetchpriority="high" alt="跨境航运贸易路线" />
-            <div class="hero-copy">
-            <span>Live trade route</span>
-            <strong>深圳港装船后，AI 预言机将 AIS、港口拥堵与合规风险联动为动态 LTV 与链下资产凭证。</strong>
-            </div>
-          </article>
           <article class="panel document-panel" id="documentPanel" tabindex="-1">
             <div class="panel-heading">
               <span>单据预览</span>
