@@ -125,11 +125,20 @@
             <button class="ghost-btn active" type="button" data-focus-target="documentPanel" aria-pressed="true"><svg aria-hidden="true"><use href="#icon-file"></use></svg>审单视图</button>
             <button class="ghost-btn" type="button" data-focus-target="riskPanel" aria-pressed="false"><svg aria-hidden="true"><use href="#icon-risk"></use></svg>风控视图</button>
             <button class="ghost-btn" type="button" data-focus-target="financePanel" aria-pressed="false"><svg aria-hidden="true"><use href="#icon-asset"></use></svg>资产视图</button>
+            <button class="ghost-btn" type="button" data-focus-target="eventPanel" aria-pressed="false"><svg aria-hidden="true"><use href="#icon-oracle"></use></svg>事件视图</button>
           </div>
         </header>
 
         <article class="hero-band">
           <img src="./assets/trade-route.svg" width="1200" height="360" fetchpriority="high" alt="跨境航运贸易路线" />
+          <div class="hero-particles" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
           <div class="route-console" aria-label="航线实时状态">
             <div>
               <span>预计在途</span>
@@ -295,157 +304,222 @@
           </article>
         </section>
 
-        <section class="dashboard">
-          <article class="panel document-panel" id="documentPanel" tabindex="-1">
-            <div class="panel-heading">
-              <span>单据预览</span>
-              <span id="docStatus">待上传</span>
-            </div>
-            <div class="document-preview" id="documentPreview">
-              <div class="mock-document">
-                <span translate="no">BILL OF LADING</span>
-                <strong translate="no">MAEU-93827104</strong>
-                <p>Shipper: Shenzhen Huadong Electronics Co., Ltd.</p>
-                <p>Consignee: Klang Distribution Sdn. Bhd.</p>
-                <p>Goods: Bluetooth Headphones with Lithium Batteries</p>
-                <p>Gross Weight: 4,820 KG</p>
-              </div>
-            </div>
-          </article>
-
-          <article class="panel fields-panel">
-            <div class="panel-heading">
-              <span>关键字段</span>
-              <span id="confidenceBadge">置信度 --</span>
-            </div>
-            <div class="fields-grid" id="fieldsGrid"></div>
-          </article>
-
-          <article class="panel risk-panel" id="riskPanel" tabindex="-1">
-            <div class="panel-heading">
-              <span>合规与风险</span>
-              <span id="riskLevel">待评估</span>
-            </div>
-            <div class="risk-meter">
-              <svg viewBox="0 0 120 120" role="img" aria-label="风险评分">
-                <circle class="meter-bg" cx="60" cy="60" r="50"></circle>
-                <circle class="meter-value" id="meterValue" cx="60" cy="60" r="50"></circle>
-              </svg>
-              <div>
-                <strong id="riskScore">--</strong>
-                <span>动态风险评分</span>
-              </div>
-            </div>
-            <ul class="risk-list" id="riskList"></ul>
-          </article>
-
-          <article class="panel finance-panel" id="financePanel" tabindex="-1">
-            <div class="panel-heading">
-              <span>融资建议</span>
-              <span id="assetState">未确权</span>
-            </div>
-            <div class="finance-grid">
-              <div>
-                <span>建议 LTV</span>
-                <strong id="ltvValue">--</strong>
-              </div>
-              <div>
-                <span>可融资额</span>
-                <strong id="loanValue">--</strong>
-              </div>
-              <div>
-                <span>资产评级</span>
-                <strong id="ratingValue">--</strong>
-              </div>
-            </div>
-            <button class="secondary-btn" id="mintBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-asset"></use></svg>生成 RWA 资产凭证</button>
-
-            <div class="credential-workbench" id="credentialWorkbench">
-              <section class="credential-visual" id="credentialVisual" aria-label="RWA 凭证生成状态">
-                <div class="credential-matrix" aria-hidden="true">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  <span></span>
+        <section class="workspace-accordion" aria-label="MetaTrade 折叠工作台">
+          <details class="work-section document-section" id="documentSection" data-section="perception">
+            <summary>
+              <span class="section-index">01</span>
+              <span class="section-title">单据感知工作台</span>
+              <small id="docStatus">待上传</small>
+            </summary>
+            <div class="section-body document-body">
+              <article class="panel document-panel" id="documentPanel" tabindex="-1">
+                <div class="panel-heading">
+                  <span>单据预览</span>
+                  <span>样例提单</span>
                 </div>
-                <div class="fingerprint-core" aria-hidden="true">
-                  <svg viewBox="0 0 180 220" role="img">
-                    <path d="M89 18c-37 0-67 27-67 62 0 15 3 25 9 38" />
-                    <path d="M90 39c-25 0-45 18-45 42 0 13 3 22 8 33" />
-                    <path d="M91 61c-13 0-24 9-24 21 0 10 4 17 8 26" />
-                    <path d="M90 84c0 30-14 48-29 69" />
-                    <path d="M111 82c0 38-13 63-32 90" />
-                    <path d="M132 84c0 43-15 75-39 105" />
-                    <path d="M44 137c13 9 27 14 46 14 33 0 54-23 54-68 0-28-23-51-54-51" />
-                    <path d="M35 160c17 13 35 21 58 21 47 0 80-38 80-96" />
+                <div class="document-preview" id="documentPreview">
+                  <div class="mock-document">
+                    <span translate="no">BILL OF LADING</span>
+                    <strong translate="no">MAEU-93827104</strong>
+                    <p>Shipper: Shenzhen Huadong Electronics Co., Ltd.</p>
+                    <p>Consignee: Klang Distribution Sdn. Bhd.</p>
+                    <p>Goods: Bluetooth Headphones with Lithium Batteries</p>
+                    <p>Gross Weight: 4,820 KG</p>
+                  </div>
+                </div>
+              </article>
+
+              <article class="panel fields-panel">
+                <div class="panel-heading">
+                  <span>关键字段</span>
+                  <span id="confidenceBadge">置信度 --</span>
+                </div>
+                <div class="fields-grid" id="fieldsGrid"></div>
+              </article>
+            </div>
+          </details>
+
+          <details class="work-section risk-section" id="riskSection" data-section="risk">
+            <summary>
+              <span class="section-index">02</span>
+              <span class="section-title">风险证据工作台</span>
+              <small id="riskLevel">待评估</small>
+            </summary>
+            <div class="section-body risk-body">
+              <article class="panel risk-panel" id="riskPanel" tabindex="-1">
+                <div class="panel-heading">
+                  <span>合规与风险</span>
+                  <span>动态评分</span>
+                </div>
+                <div class="risk-meter">
+                  <svg viewBox="0 0 120 120" role="img" aria-label="风险评分">
+                    <circle class="meter-bg" cx="60" cy="60" r="50"></circle>
+                    <circle class="meter-value" id="meterValue" cx="60" cy="60" r="50"></circle>
                   </svg>
+                  <div>
+                    <strong id="riskScore">--</strong>
+                    <span>动态风险评分</span>
+                  </div>
                 </div>
-                <div class="credential-scan" aria-hidden="true"></div>
-                <div class="credential-chip">
-                  <span id="credentialVisualStatus">待生成</span>
-                  <strong id="credentialVisualHash">等待资产凭证</strong>
-                </div>
-              </section>
+                <ul class="risk-list" id="riskList"></ul>
+              </article>
 
-              <div class="credential-data">
-                <div class="nft-state" aria-label="资产凭证状态">
+              <article class="panel evidence-panel" aria-label="审计证据链">
+                <div class="panel-heading">
+                  <span>审计证据链</span>
+                  <span id="evidenceBadge">待生成</span>
+                </div>
+                <div class="evidence-grid" id="evidenceGrid"></div>
+              </article>
+            </div>
+          </details>
+
+          <details class="work-section finance-section" id="financeSection" data-section="asset">
+            <summary>
+              <span class="section-index">03</span>
+              <span class="section-title">资产确权工作台</span>
+              <small id="assetState">未确权</small>
+            </summary>
+            <div class="section-body finance-body">
+              <article class="finance-brief" aria-label="融资建议说明">
+                <p class="eyebrow">Asset desk</p>
+                <h3>左侧先说明“为什么能放款”，右侧再生成凭证。</h3>
+                <p>这块不再只是指纹视觉。系统会把 LTV、可融资额、评级、凭证状态和事件锁放在同一个折叠工作区里，银行或评委点开后能直接看到资产化过程。</p>
+                <dl class="brief-list">
                   <div>
-                    <span>凭证哈希</span>
-                    <strong id="tokenIdValue">--</strong>
+                    <dt>确权前</dt>
+                    <dd>字段、风险、航线事件先形成审计证据。</dd>
                   </div>
                   <div>
-                    <span>资产状态</span>
-                    <strong id="assetStatusValue">待生成</strong>
+                    <dt>确权中</dt>
+                    <dd>资产凭证记录哈希、融资解锁和转让锁。</dd>
                   </div>
                   <div>
-                    <span>融资解锁</span>
-                    <strong id="financingUnlockedValue">--</strong>
+                    <dt>确权后</dt>
+                    <dd>JSON 与合规报告可下载，给后续授信系统对接。</dd>
+                  </div>
+                </dl>
+              </article>
+
+              <article class="panel finance-panel" id="financePanel" tabindex="-1">
+                <div class="panel-heading">
+                  <span>融资建议</span>
+                  <span>凭证生成</span>
+                </div>
+                <div class="finance-grid">
+                  <div>
+                    <span>建议 LTV</span>
+                    <strong id="ltvValue">--</strong>
                   </div>
                   <div>
-                    <span>转让锁</span>
-                    <strong id="transferLockValue">关闭</strong>
+                    <span>可融资额</span>
+                    <strong id="loanValue">--</strong>
                   </div>
+                  <div>
+                    <span>资产评级</span>
+                    <strong id="ratingValue">--</strong>
+                  </div>
+                </div>
+                <button class="secondary-btn" id="mintBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-asset"></use></svg>生成 RWA 资产凭证</button>
+
+                <div class="credential-workbench" id="credentialWorkbench">
+                  <section class="credential-visual" id="credentialVisual" aria-label="RWA 凭证生成状态">
+                    <div class="credential-matrix" aria-hidden="true">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                    <div class="credential-brief">
+                      <span>凭证叙事</span>
+                      <p id="credentialBrief">待生成：先完成识别与合规校验，再生成凭证。</p>
+                    </div>
+                    <div class="fingerprint-core" aria-hidden="true">
+                      <svg viewBox="0 0 180 220" role="img">
+                        <path d="M89 18c-37 0-67 27-67 62 0 15 3 25 9 38" />
+                        <path d="M90 39c-25 0-45 18-45 42 0 13 3 22 8 33" />
+                        <path d="M91 61c-13 0-24 9-24 21 0 10 4 17 8 26" />
+                        <path d="M90 84c0 30-14 48-29 69" />
+                        <path d="M111 82c0 38-13 63-32 90" />
+                        <path d="M132 84c0 43-15 75-39 105" />
+                        <path d="M44 137c13 9 27 14 46 14 33 0 54-23 54-68 0-28-23-51-54-51" />
+                        <path d="M35 160c17 13 35 21 58 21 47 0 80-38 80-96" />
+                      </svg>
+                    </div>
+                    <div class="credential-scan" aria-hidden="true"></div>
+                    <div class="credential-chip">
+                      <span id="credentialVisualStatus">待生成</span>
+                      <strong id="credentialVisualHash">等待资产凭证</strong>
+                    </div>
+                  </section>
+
+                  <div class="credential-data">
+                    <div class="nft-state" aria-label="资产凭证状态">
+                      <div>
+                        <span>凭证哈希</span>
+                        <strong id="tokenIdValue">--</strong>
+                      </div>
+                      <div>
+                        <span>资产状态</span>
+                        <strong id="assetStatusValue">待生成</strong>
+                      </div>
+                      <div>
+                        <span>融资解锁</span>
+                        <strong id="financingUnlockedValue">--</strong>
+                      </div>
+                      <div>
+                        <span>转让锁</span>
+                        <strong id="transferLockValue">关闭</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mint-animation" id="mintAnimation" aria-hidden="true">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <b>正在生成 / 签名 / 写入凭证</b>
+                </div>
+                <div class="download-actions" aria-label="资产下载操作">
+                  <button class="download-btn" id="downloadJsonBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-download"></use></svg>下载抽取 JSON</button>
+                  <button class="download-btn" id="downloadReportBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-download"></use></svg>下载合规报告</button>
+                </div>
+                <p class="credential-note" id="credentialNote">资产凭证生成后可下载审计 JSON 与合规报告。</p>
+              </article>
+            </div>
+          </details>
+
+          <details class="work-section event-section" id="eventSection" data-section="oracle">
+            <summary>
+              <span class="section-index">04</span>
+              <span class="section-title">事件监听工作台</span>
+              <small id="latencyValue">-- ms</small>
+            </summary>
+            <div class="section-body event-body">
+              <article class="panel oracle-panel" id="eventPanel" tabindex="-1">
+                <div class="panel-heading">
+                  <span>在途事件模拟</span>
+                  <span>状态更新</span>
                 </div>
                 <div class="oracle-sim">
-                  <label for="newsInput">在途事件模拟</label>
+                  <label for="newsInput">事件描述</label>
                   <textarea id="newsInput" rows="3">台风影响船舶航线，预计延误 3 天</textarea>
                   <button class="download-btn" id="simulateNewsBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-oracle"></use></svg>模拟链上状态更新</button>
                   <pre id="oracleOutput">等待事件监听结果。</pre>
                 </div>
-              </div>
-            </div>
-            <div class="mint-animation" id="mintAnimation" aria-hidden="true">
-              <span></span>
-              <span></span>
-              <span></span>
-              <b>正在生成 / 签名 / 写入凭证</b>
-            </div>
-            <div class="download-actions" aria-label="资产下载操作">
-              <button class="download-btn" id="downloadJsonBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-download"></use></svg>下载抽取 JSON</button>
-              <button class="download-btn" id="downloadReportBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-download"></use></svg>下载合规报告</button>
-            </div>
-            <p class="credential-note" id="credentialNote">资产凭证生成后可下载审计 JSON 与合规报告。</p>
-          </article>
-        </section>
+              </article>
 
-        <section class="insight-row">
-          <section class="panel evidence-panel" aria-label="审计证据链">
-            <div class="panel-heading">
-              <span>审计证据链</span>
-              <span id="evidenceBadge">待生成</span>
+              <article class="panel timeline-panel">
+                <div class="panel-heading">
+                  <span>事件时间线</span>
+                  <span>实时日志</span>
+                </div>
+                <ol class="timeline" id="timeline" aria-live="polite"></ol>
+              </article>
             </div>
-            <div class="evidence-grid" id="evidenceGrid"></div>
-          </section>
-
-          <section class="panel timeline-panel">
-            <div class="panel-heading">
-              <span>事件时间线</span>
-              <span id="latencyValue">-- ms</span>
-            </div>
-            <ol class="timeline" id="timeline" aria-live="polite"></ol>
-          </section>
+          </details>
         </section>
       </section>
     </main>

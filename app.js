@@ -22,6 +22,7 @@ const productModules = {
     metricLabel: "字段可信度",
     bullets: ["提单号、货值、港口和货物描述统一结构化", "低置信字段进入视觉复核队列", "保留证据链，方便银行风控复盘"],
     target: "documentPanel",
+    section: "documentSection",
   },
   risk: {
     kicker: "风险证据层",
@@ -31,6 +32,7 @@ const productModules = {
     metricLabel: "动态风险",
     bullets: ["识别锂电池、MSDS、UN38.3 等隐含要求", "把航运和港口拥堵事件合并进风险评分", "风险原因以审计语言输出"],
     target: "riskPanel",
+    section: "riskSection",
   },
   asset: {
     kicker: "资产治理层",
@@ -40,6 +42,7 @@ const productModules = {
     metricLabel: "融资空间",
     bullets: ["LTV 随风险评分动态调整", "RWA 凭证记录资产状态和审计日志", "下载 JSON 与合规报告用于后续对接"],
     target: "financePanel",
+    section: "financeSection",
   },
   oracle: {
     kicker: "事件监听层",
@@ -48,7 +51,8 @@ const productModules = {
     metric: "60%",
     metricLabel: "事件后解锁",
     bullets: ["输入新闻事件即可模拟链上指令", "高风险事件自动打开转让锁", "时间线保留每次状态变更"],
-    target: "financePanel",
+    target: "eventPanel",
+    section: "eventSection",
   },
 };
 
@@ -116,8 +120,10 @@ const els = {
   credentialVisual: document.querySelector("#credentialVisual"),
   credentialVisualStatus: document.querySelector("#credentialVisualStatus"),
   credentialVisualHash: document.querySelector("#credentialVisualHash"),
+  credentialBrief: document.querySelector("#credentialBrief"),
   viewButtons: document.querySelectorAll(".ghost-btn[data-focus-target]"),
   moduleCards: document.querySelectorAll(".module-card"),
+  workSections: document.querySelectorAll(".work-section"),
   moduleKicker: document.querySelector("#moduleKicker"),
   moduleTitle: document.querySelector("#moduleTitle"),
   moduleCopy: document.querySelector("#moduleCopy"),
@@ -128,7 +134,7 @@ const els = {
 };
 
 function setupRevealEffects() {
-  const items = Array.from(document.querySelectorAll(".panel, .step-card, .hero-band, .ops-strip, .story-overview, .module-detail-band"));
+  const items = Array.from(document.querySelectorAll(".panel, .step-card, .hero-band, .ops-strip, .story-overview, .module-detail-band, .work-section, .finance-brief"));
   items.forEach((item, index) => {
     item.classList.add("reveal-item", "spotlight-card");
     item.style.setProperty("--reveal-index", String(index % 8));
@@ -162,10 +168,29 @@ function setupRevealEffects() {
 function focusWorkbenchPanel(targetId) {
   const target = document.querySelector(`#${targetId}`);
   if (!target) return;
+  const section = target.closest(".work-section");
+  if (section) openWorkSection(section.id);
   target.scrollIntoView({ behavior: "smooth", block: "center" });
   target.focus({ preventScroll: true });
   target.classList.remove("focus-pulse");
   requestAnimationFrame(() => target.classList.add("focus-pulse"));
+}
+
+function openWorkSection(sectionId, { scroll = false } = {}) {
+  const targetSection = document.querySelector(`#${sectionId}`);
+  if (!targetSection) return;
+  els.workSections.forEach((section) => {
+    section.open = section === targetSection;
+    section.classList.toggle("is-active", section === targetSection);
+  });
+  if (scroll) targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function collapseWorkSections() {
+  els.workSections.forEach((section) => {
+    section.open = false;
+    section.classList.remove("is-active");
+  });
 }
 
 function renderProductModule(moduleKey = "perception") {
@@ -182,6 +207,8 @@ function renderProductModule(moduleKey = "perception") {
   els.moduleMetricLabel.textContent = module.metricLabel;
   els.moduleBullets.innerHTML = module.bullets.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   els.moduleJumpBtn.dataset.target = module.target;
+  els.moduleJumpBtn.dataset.section = module.section;
+  openWorkSection(module.section);
 }
 
 function formatCurrency(value) {
@@ -327,6 +354,14 @@ function setActiveStep(stepName) {
     card.classList.toggle("active", card.dataset.step === stepName);
     card.classList.toggle("is-running", card.dataset.step === stepName);
   });
+  if (!state.timeline.length && stepName === "ocr") return;
+  const sectionByStep = {
+    ocr: "documentSection",
+    vl: "documentSection",
+    rag: "riskSection",
+    rwa: "financeSection",
+  };
+  if (sectionByStep[stepName]) openWorkSection(sectionByStep[stepName]);
 }
 
 function updateRouteStatus({
@@ -353,6 +388,16 @@ function updateCredentialVisual(status = "idle", hash = "--") {
   };
   els.credentialVisualStatus.textContent = labels[status] || labels.idle;
   els.credentialVisualHash.textContent = hash && hash !== "--" ? hash : "等待资产凭证";
+  if (els.credentialBrief) {
+    const copy = {
+      idle: "待生成：先完成识别与合规校验，再生成凭证。",
+      pricing: "资产定价完成：LTV、评级和可融资额已经进入确权队列。",
+      minting: "凭证生成中：系统正在把资产状态、融资解锁和审计日志写入凭证。",
+      minted: "凭证已生成：可以下载审计 JSON 与合规报告，进入授信对接。",
+      elevated: "风险已升高：事件监听触发转让锁，融资解锁比例需要复核。",
+    };
+    els.credentialBrief.textContent = copy[status] || copy.idle;
+  }
 }
 
 function renderRisk(result) {
@@ -622,6 +667,7 @@ async function runReview() {
       ],
       "4 条证据",
     );
+    openWorkSection("financeSection", { scroll: true });
     state.extractedJson = buildExtractedJson({
       risk,
       finance,
@@ -718,6 +764,7 @@ function resetApp() {
   updateDecision();
   renderDefaultEvidence();
   setActiveStep("ocr");
+  collapseWorkSections();
   renderFields();
   renderTimeline();
   previewFile(null);
@@ -748,6 +795,7 @@ els.resetBtn.addEventListener("click", resetApp);
 
 els.mintBtn.addEventListener("click", () => {
   if (!state.extractedJson) return;
+  openWorkSection("financeSection");
   const hash = makeTokenHash();
   state.credentialId = hash;
   updateCredentialVisual("minting", "正在写入凭证哈希");
@@ -792,6 +840,7 @@ els.mintBtn.addEventListener("click", () => {
 });
 
 els.simulateNewsBtn.addEventListener("click", async () => {
+  openWorkSection("eventSection");
   let rawResult;
   try {
     rawResult = endpointMode()
@@ -843,10 +892,15 @@ els.viewButtons.forEach((button) => {
 });
 
 els.moduleCards.forEach((card) => {
-  card.addEventListener("click", () => renderProductModule(card.dataset.module));
+  card.addEventListener("click", () => {
+    renderProductModule(card.dataset.module);
+    const module = productModules[card.dataset.module] || productModules.perception;
+    openWorkSection(module.section, { scroll: true });
+  });
 });
 
 els.moduleJumpBtn.addEventListener("click", () => {
+  openWorkSection(els.moduleJumpBtn.dataset.section || "documentSection");
   focusWorkbenchPanel(els.moduleJumpBtn.dataset.target || "documentPanel");
 });
 
@@ -857,6 +911,7 @@ renderProductModule("perception");
 setDownloadReady(false);
 els.modeBadge.textContent = endpointMode() ? "接口识别模式" : "演示模式";
 updateRouteStatus();
+collapseWorkSections();
 setupRevealEffects();
 
 function buildExtractedJson({ risk = null, finance = null, loan = null, latencyMs = null } = {}) {
