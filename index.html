@@ -119,7 +119,7 @@
           <div>
             <p class="eyebrow">AI trade finance atelier</p>
             <h2>一张贸易单据，变成可融资资产。</h2>
-            <p class="hero-subcopy">首屏先看状态。继续下滑，按模块进入单据、风控、资产和预言机细节。</p>
+            <p class="hero-subcopy">首屏先看状态。继续下滑，按模块进入单据、风控、资产和事件监听细节。</p>
           </div>
           <div class="top-actions">
             <button class="ghost-btn active" type="button" data-focus-target="documentPanel" aria-pressed="true"><svg aria-hidden="true"><use href="#icon-file"></use></svg>审单视图</button>
@@ -132,20 +132,20 @@
           <img src="./assets/trade-route.svg" width="1200" height="360" fetchpriority="high" alt="跨境航运贸易路线" />
           <div class="route-console" aria-label="航线实时状态">
             <div>
-              <span>ETA window</span>
+              <span>预计在途</span>
               <strong id="routeEta">18-22d</strong>
             </div>
             <div>
-              <span>Port risk</span>
+              <span>港口风险</span>
               <strong id="routeRisk">+12%</strong>
             </div>
             <div>
-              <span>Asset state</span>
-              <strong id="routeAsset">PENDING</strong>
+              <span>资产状态</span>
+              <strong id="routeAsset">待生成</strong>
             </div>
             <div>
-              <span>Oracle signal</span>
-              <strong id="routeSignal">STANDBY</strong>
+              <span>事件信号</span>
+              <strong id="routeSignal">待命</strong>
             </div>
           </div>
           <div class="route-reticle" aria-hidden="true">
@@ -154,7 +154,7 @@
             <span></span>
           </div>
           <div class="hero-copy">
-            <span>Live trade corridor</span>
+            <span>实时贸易走廊</span>
             <strong>航线、风险、LTV 用同一张图对齐。</strong>
           </div>
           <a class="scroll-cue" href="#storyModules" aria-label="查看产品模块">
@@ -165,7 +165,7 @@
 
         <section class="story-overview" id="storyModules" aria-label="MetaTrade 产品模块">
           <div class="story-intro">
-            <p class="eyebrow">Product modules</p>
+            <p class="eyebrow">产品模块</p>
             <h2>不把说明塞进首屏。把复杂贸易金融拆成四个可进入的场景。</h2>
           </div>
           <div class="module-grid" role="list">
@@ -190,7 +190,7 @@
             <button class="module-card" type="button" data-module="oracle" aria-pressed="false">
               <span class="module-icon"><svg aria-hidden="true"><use href="#icon-oracle"></use></svg></span>
               <span class="module-index">04</span>
-              <strong>预言机监听</strong>
+              <strong>事件监听</strong>
               <small>新闻和航运事件触发链上资产状态更新。</small>
             </button>
           </div>
@@ -208,13 +208,13 @@
             </div>
             <div class="stage-orbit">
               <b id="moduleMetric">98.2%</b>
-              <small id="moduleMetricLabel">field confidence</small>
+              <small id="moduleMetricLabel">字段可信度</small>
             </div>
           </div>
           <div class="module-detail-copy">
-            <span id="moduleKicker">Perception layer</span>
-            <h3 id="moduleTitle">单据感知不是只做 OCR，而是把字段变成可复核证据。</h3>
-            <p id="moduleCopy">DeepSeek-OCR-2 负责光学上下文压缩，VACOT 视觉审计负责复核遮挡、水印、折痕和低置信字段。运营用户先看到结论，再决定是否打开字段证据。</p>
+            <span id="moduleKicker">单据感知层</span>
+            <h3 id="moduleTitle">单据感知会把字段变成可复核证据。</h3>
+            <p id="moduleCopy">多模态识别服务负责读取 PDF 或图片单据，视觉复核负责检查遮挡、水印、折痕和低置信字段。运营用户先看到结论，再决定是否打开字段证据。</p>
             <ul id="moduleBullets"></ul>
             <button class="module-jump" id="moduleJumpBtn" type="button">
               查看对应工作台
@@ -227,71 +227,71 @@
           <article class="panel decision-hero">
             <div class="decision-kicker">
               <span class="live-dot" aria-hidden="true"></span>
-              <span id="decisionState">Awaiting intelligence</span>
+              <span id="decisionState">等待识别</span>
             </div>
             <h3 id="decisionTitle">等待贸易单据审单</h3>
-            <p id="decisionCopy">上传单据或使用样例资产后，系统将联动 DeepSeek-OCR-2 光学上下文压缩、VACOT 视觉审计、Agentic RAG 合规哨兵与动态 RWA 治理。</p>
+            <p id="decisionCopy">上传单据或使用样例资产后，系统将联动多模态单据识别、视觉复核、合规校验与动态资产治理。</p>
             <div class="decision-footer">
               <span id="decisionAction">下一步：运行审单链路</span>
-              <span id="decisionMode">Demo / API Ready</span>
+              <span id="decisionMode">演示 / 接口就绪</span>
             </div>
           </article>
           <article class="panel decision-metric">
             <span>可信度</span>
             <strong id="decisionConfidence">--</strong>
-            <small>VACOT audit</small>
+            <small>识别可信度</small>
           </article>
           <article class="panel decision-metric">
             <span>风险暴露</span>
             <strong id="decisionRisk">--</strong>
-            <small>Dynamic score</small>
+            <small>动态评分</small>
           </article>
           <article class="panel decision-metric">
             <span>融资空间</span>
             <strong id="decisionExposure">--</strong>
-            <small>AI oracle adjusted</small>
+            <small>事件调整</small>
           </article>
         </section>
 
         <section class="ops-strip" aria-label="系统运行指标">
           <div>
-            <span>OCR Engine</span>
-            <strong>DeepSeek-OCR-2</strong>
+            <span>识别引擎</span>
+            <strong>多模态识别</strong>
           </div>
           <div>
-            <span>VL Audit</span>
-            <strong>VACOT Agent</strong>
+            <span>视觉审计</span>
+            <strong>图文复核</strong>
           </div>
           <div>
-            <span>Risk Graph</span>
-            <strong>Agentic RAG</strong>
+            <span>风险图谱</span>
+            <strong>合规校验</strong>
           </div>
           <div>
-            <span>Asset State</span>
-            <strong>AI Oracle</strong>
+            <span>资产状态</span>
+            <strong>事件监听</strong>
           </div>
         </section>
 
         <section class="pipeline" aria-label="处理流程">
           <article class="step-card active" data-step="ocr">
             <span class="step-index">01</span>
-            <h3>光学压缩感知</h3>
-            <p>DeepSeek-OCR-2 执行光学上下文压缩、语义去噪与结构化字段输出。</p>
+            <h3>单据识别</h3>
+            <p>读取 PDF 或图片单据，去噪后输出发货人、提单号、货值和港口字段。</p>
           </article>
           <article class="step-card" data-step="vl">
             <span class="step-index">02</span>
-            <h3>VACOT 审计</h3>
+            <h3>视觉复核</h3>
             <p>多模态理解复核遮挡、水印、折痕与低置信度金融字段。</p>
           </article>
           <article class="step-card" data-step="rag">
             <span class="step-index">03</span>
-            <h3>合规 RAG</h3>
+            <h3>合规校验</h3>
             <p>穿透货物描述，检索危规、制裁与单据完整性要求。</p>
           </article>
           <article class="step-card" data-step="rwa">
             <span class="step-index">04</span>
-            <h3>动态 RWA 治理</h3>
-            <p>AI 预言机驱动风险评分、LTV 与资产凭证状态转移。</p>
+            <h3>资产治理</h3>
+            <p>根据风险评分、LTV 与在途事件更新资产凭证状态。</p>
           </article>
         </section>
 
@@ -333,7 +333,7 @@
               </svg>
               <div>
                 <strong id="riskScore">--</strong>
-                <span>Dynamic Risk Score</span>
+                <span>动态风险评分</span>
               </div>
             </div>
             <ul class="risk-list" id="riskList"></ul>
@@ -359,48 +359,81 @@
               </div>
             </div>
             <button class="secondary-btn" id="mintBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-asset"></use></svg>生成 RWA 资产凭证</button>
-            <div class="nft-state" aria-label="NFT asset state">
-              <div>
-                <span>NFT Token Hash</span>
-                <strong id="tokenIdValue">--</strong>
+
+            <div class="credential-workbench" id="credentialWorkbench">
+              <section class="credential-visual" id="credentialVisual" aria-label="RWA 凭证生成状态">
+                <div class="credential-matrix" aria-hidden="true">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="fingerprint-core" aria-hidden="true">
+                  <svg viewBox="0 0 180 220" role="img">
+                    <path d="M89 18c-37 0-67 27-67 62 0 15 3 25 9 38" />
+                    <path d="M90 39c-25 0-45 18-45 42 0 13 3 22 8 33" />
+                    <path d="M91 61c-13 0-24 9-24 21 0 10 4 17 8 26" />
+                    <path d="M90 84c0 30-14 48-29 69" />
+                    <path d="M111 82c0 38-13 63-32 90" />
+                    <path d="M132 84c0 43-15 75-39 105" />
+                    <path d="M44 137c13 9 27 14 46 14 33 0 54-23 54-68 0-28-23-51-54-51" />
+                    <path d="M35 160c17 13 35 21 58 21 47 0 80-38 80-96" />
+                  </svg>
+                </div>
+                <div class="credential-scan" aria-hidden="true"></div>
+                <div class="credential-chip">
+                  <span id="credentialVisualStatus">待生成</span>
+                  <strong id="credentialVisualHash">等待资产凭证</strong>
+                </div>
+              </section>
+
+              <div class="credential-data">
+                <div class="nft-state" aria-label="资产凭证状态">
+                  <div>
+                    <span>凭证哈希</span>
+                    <strong id="tokenIdValue">--</strong>
+                  </div>
+                  <div>
+                    <span>资产状态</span>
+                    <strong id="assetStatusValue">待生成</strong>
+                  </div>
+                  <div>
+                    <span>融资解锁</span>
+                    <strong id="financingUnlockedValue">--</strong>
+                  </div>
+                  <div>
+                    <span>转让锁</span>
+                    <strong id="transferLockValue">关闭</strong>
+                  </div>
+                </div>
+                <div class="oracle-sim">
+                  <label for="newsInput">在途事件模拟</label>
+                  <textarea id="newsInput" rows="3">台风影响船舶航线，预计延误 3 天</textarea>
+                  <button class="download-btn" id="simulateNewsBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-oracle"></use></svg>模拟链上状态更新</button>
+                  <pre id="oracleOutput">等待事件监听结果。</pre>
+                </div>
               </div>
-              <div>
-                <span>Asset Status</span>
-                <strong id="assetStatusValue">PENDING</strong>
-              </div>
-              <div>
-                <span>Financing Unlocked</span>
-                <strong id="financingUnlockedValue">--</strong>
-              </div>
-              <div>
-                <span>Transfer Lock</span>
-                <strong id="transferLockValue">OFF</strong>
-              </div>
-            </div>
-            <div class="oracle-sim">
-              <label for="newsInput">News-driven risk simulation</label>
-              <textarea id="newsInput" rows="3">Typhoon affects vessel route, 3-day delay expected</textarea>
-              <button class="download-btn" id="simulateNewsBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-oracle"></use></svg>Simulate on-chain status update</button>
-              <pre id="oracleOutput">等待 AI 预言机事件。</pre>
             </div>
             <div class="mint-animation" id="mintAnimation" aria-hidden="true">
               <span></span>
               <span></span>
               <span></span>
-              <b>HASHING / SIGNING / MINTING</b>
+              <b>正在生成 / 签名 / 写入凭证</b>
             </div>
             <div class="download-actions" aria-label="资产下载操作">
-              <button class="download-btn" id="downloadJsonBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-download"></use></svg>Download extracted JSON</button>
-              <button class="download-btn" id="downloadReportBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-download"></use></svg>Download compliance report</button>
+              <button class="download-btn" id="downloadJsonBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-download"></use></svg>下载抽取 JSON</button>
+              <button class="download-btn" id="downloadReportBtn" type="button" disabled><svg aria-hidden="true"><use href="#icon-download"></use></svg>下载合规报告</button>
             </div>
             <p class="credential-note" id="credentialNote">资产凭证生成后可下载审计 JSON 与合规报告。</p>
           </article>
         </section>
 
         <section class="insight-row">
-          <section class="panel evidence-panel" aria-label="模型证据链">
+          <section class="panel evidence-panel" aria-label="审计证据链">
             <div class="panel-heading">
-              <span>模型证据链</span>
+              <span>审计证据链</span>
               <span id="evidenceBadge">待生成</span>
             </div>
             <div class="evidence-grid" id="evidenceGrid"></div>

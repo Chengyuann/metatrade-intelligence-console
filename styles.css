@@ -1663,11 +1663,173 @@ input:focus-visible,
   font-size: 22px;
 }
 
+.credential-workbench {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.76fr) minmax(360px, 1.24fr);
+  gap: 12px;
+  padding: 0 12px 12px;
+}
+
+.credential-visual {
+  position: relative;
+  min-height: 322px;
+  overflow: hidden;
+  border: 1px solid rgba(49, 95, 79, 0.2);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 50% 36%, rgba(49, 95, 79, 0.18), transparent 36%),
+    linear-gradient(rgba(49, 95, 79, 0.08) 1px, transparent 1px) 0 0 / 22px 22px,
+    linear-gradient(90deg, rgba(49, 95, 79, 0.06) 1px, transparent 1px) 0 0 / 22px 22px,
+    rgba(246, 249, 244, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 18px 46px rgba(38, 34, 28, 0.08);
+}
+
+.credential-visual::before,
+.credential-visual::after {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  pointer-events: none;
+  border: 1px solid rgba(49, 95, 79, 0.16);
+  border-radius: 999px;
+}
+
+.credential-visual::after {
+  inset: 48px;
+  opacity: 0.72;
+  animation: credential-ring 3.4s ease-in-out infinite;
+}
+
+.credential-matrix {
+  position: absolute;
+  inset: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  opacity: 0.58;
+}
+
+.credential-matrix span {
+  border: 1px solid rgba(49, 95, 79, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 254, 250, 0.22);
+}
+
+.fingerprint-core {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 170px;
+  transform: translate(-50%, -50%);
+  color: var(--accent-strong);
+  filter: drop-shadow(0 18px 30px rgba(49, 95, 79, 0.18));
+}
+
+.fingerprint-core svg {
+  width: 100%;
+  height: auto;
+  stroke-width: 4.5;
+}
+
+.fingerprint-core path {
+  stroke-dasharray: 420;
+  stroke-dashoffset: 420;
+  animation: fingerprint-draw 3.8s ease-in-out infinite;
+}
+
+.fingerprint-core path:nth-child(2) { animation-delay: 120ms; }
+.fingerprint-core path:nth-child(3) { animation-delay: 240ms; }
+.fingerprint-core path:nth-child(4) { animation-delay: 360ms; }
+.fingerprint-core path:nth-child(5) { animation-delay: 480ms; }
+.fingerprint-core path:nth-child(6) { animation-delay: 600ms; }
+.fingerprint-core path:nth-child(7) { animation-delay: 720ms; }
+.fingerprint-core path:nth-child(8) { animation-delay: 840ms; }
+
+.credential-scan {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 38px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(49, 95, 79, 0.82), transparent);
+  box-shadow: 0 0 18px rgba(49, 95, 79, 0.32);
+  animation: credential-scan 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.credential-chip {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid rgba(49, 95, 79, 0.16);
+  border-radius: 10px;
+  background: rgba(255, 254, 250, 0.68);
+  backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.credential-chip span {
+  color: var(--accent-strong);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.credential-chip strong {
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+.credential-visual[data-status="idle"] .credential-scan,
+.credential-visual[data-status="pricing"] .credential-scan {
+  opacity: 0.55;
+}
+
+.credential-visual[data-status="minting"],
+.credential-visual[data-status="minted"] {
+  border-color: rgba(49, 95, 79, 0.32);
+  background:
+    radial-gradient(circle at 50% 36%, rgba(49, 95, 79, 0.24), transparent 36%),
+    linear-gradient(rgba(49, 95, 79, 0.1) 1px, transparent 1px) 0 0 / 22px 22px,
+    linear-gradient(90deg, rgba(49, 95, 79, 0.08) 1px, transparent 1px) 0 0 / 22px 22px,
+    rgba(241, 248, 243, 0.82);
+}
+
+.credential-visual[data-status="minted"] .fingerprint-core {
+  filter: drop-shadow(0 0 22px rgba(49, 95, 79, 0.24)) drop-shadow(0 20px 30px rgba(49, 95, 79, 0.2));
+}
+
+.credential-visual[data-status="elevated"] {
+  border-color: rgba(184, 139, 69, 0.38);
+  background:
+    radial-gradient(circle at 50% 36%, rgba(184, 139, 69, 0.2), transparent 36%),
+    linear-gradient(rgba(184, 139, 69, 0.08) 1px, transparent 1px) 0 0 / 22px 22px,
+    linear-gradient(90deg, rgba(184, 139, 69, 0.06) 1px, transparent 1px) 0 0 / 22px 22px,
+    rgba(250, 247, 238, 0.84);
+}
+
+.credential-visual[data-status="elevated"] .credential-scan {
+  background: linear-gradient(90deg, transparent, rgba(184, 139, 69, 0.86), transparent);
+  box-shadow: 0 0 18px rgba(184, 139, 69, 0.32);
+}
+
+.credential-data {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+}
+
 .nft-state {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
-  padding: 0 12px 12px;
+  padding: 0;
 }
 
 .nft-state div {
@@ -1681,7 +1843,7 @@ input:focus-visible,
 .oracle-sim {
   display: grid;
   gap: 9px;
-  padding: 0 12px 12px;
+  padding: 0;
 }
 
 .oracle-sim textarea,
@@ -1885,6 +2047,24 @@ input:focus-visible,
   100% { box-shadow: 0 0 0 14px rgba(63, 109, 92, 0), var(--shadow-soft), var(--inner); }
 }
 
+@keyframes fingerprint-draw {
+  0% { stroke-dashoffset: 420; opacity: 0.18; }
+  32%, 72% { stroke-dashoffset: 0; opacity: 0.92; }
+  100% { stroke-dashoffset: -420; opacity: 0.22; }
+}
+
+@keyframes credential-scan {
+  0%, 100% { transform: translateY(0); opacity: 0; }
+  12% { opacity: 0.88; }
+  54% { opacity: 0.88; }
+  72% { transform: translateY(205px); opacity: 0; }
+}
+
+@keyframes credential-ring {
+  0%, 100% { transform: scale(0.94); opacity: 0.42; }
+  50% { transform: scale(1.04); opacity: 0.82; }
+}
+
 @media (max-width: 1360px) and (min-width: 1121px) {
   .app-shell {
     max-width: 1260px;
@@ -1950,6 +2130,14 @@ input:focus-visible,
 
   .nft-state {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .credential-workbench {
+    grid-template-columns: 1fr;
+  }
+
+  .credential-visual {
+    min-height: 280px;
   }
 }
 
@@ -2219,9 +2407,27 @@ input:focus-visible,
   .pipeline,
   .finance-grid,
   .nft-state,
+  .credential-workbench,
   .evidence-grid,
   .download-actions {
     grid-template-columns: 1fr;
+  }
+
+  .credential-workbench {
+    padding-inline: 12px;
+  }
+
+  .credential-visual {
+    min-height: 240px;
+  }
+
+  .fingerprint-core {
+    width: 132px;
+  }
+
+  .credential-matrix {
+    inset: 10px;
+    gap: 6px;
   }
 
   .decision-hero {

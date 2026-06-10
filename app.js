@@ -15,38 +15,38 @@ const ASSET_ICON = '<svg aria-hidden="true"><use href="#icon-asset"></use></svg>
 
 const productModules = {
   perception: {
-    kicker: "Perception layer",
-    title: "单据感知不是只做 OCR，而是把字段变成可复核证据。",
-    copy: "DeepSeek-OCR-2 负责光学上下文压缩，VACOT 视觉审计负责复核遮挡、水印、折痕和低置信字段。运营用户先看到结论，再决定是否打开字段证据。",
+    kicker: "单据感知层",
+    title: "单据感知会把字段变成可复核证据。",
+    copy: "多模态识别服务负责读取 PDF 或图片单据，视觉复核负责检查遮挡、水印、折痕和低置信字段。运营用户先看到结论，再决定是否打开字段证据。",
     metric: "98.2%",
-    metricLabel: "field confidence",
+    metricLabel: "字段可信度",
     bullets: ["提单号、货值、港口和货物描述统一结构化", "低置信字段进入视觉复核队列", "保留证据链，方便银行风控复盘"],
     target: "documentPanel",
   },
   risk: {
-    kicker: "Risk evidence",
+    kicker: "风险证据层",
     title: "风控结论必须带理由，不只给一个红黄绿标签。",
-    copy: "Agentic RAG 把货物描述、航线、制裁名单、危规文件和港口事件拆成可追溯提示，帮助审单员判断是否放行、补件或调低授信。",
+    copy: "合规校验会把货物描述、航线、制裁名单、危规文件和港口事件拆成可追溯提示，帮助审单员判断是否放行、补件或调低授信。",
     metric: "48/100",
-    metricLabel: "dynamic risk",
-    bullets: ["识别锂电池、MSDS、UN38.3 等隐含要求", "把 AIS 和港口拥堵事件合并进风险评分", "风险原因以审计语言输出"],
+    metricLabel: "动态风险",
+    bullets: ["识别锂电池、MSDS、UN38.3 等隐含要求", "把航运和港口拥堵事件合并进风险评分", "风险原因以审计语言输出"],
     target: "riskPanel",
   },
   asset: {
-    kicker: "Asset governance",
+    kicker: "资产治理层",
     title: "资产确权要跟风控同步，而不是在审完单后另起流程。",
     copy: "系统根据风险评分和单据可信度生成建议 LTV、评级、可融资额与 RWA 凭证状态，让贸易资产从单据流转到资金流。",
     metric: "CNY 1.96M",
-    metricLabel: "finance space",
+    metricLabel: "融资空间",
     bullets: ["LTV 随风险评分动态调整", "RWA 凭证记录资产状态和审计日志", "下载 JSON 与合规报告用于后续对接"],
     target: "financePanel",
   },
   oracle: {
-    kicker: "AI oracle",
+    kicker: "事件监听层",
     title: "在途事件改变资产状态，页面必须把变化讲清楚。",
-    copy: "台风、延误、港口拥堵等新闻事件会触发 AI 预言机模拟，更新融资解锁比例、转让锁和资产状态。",
+    copy: "台风、延误、港口拥堵等新闻事件会触发事件监听模拟，更新融资解锁比例、转让锁和资产状态。",
     metric: "60%",
-    metricLabel: "unlock after event",
+    metricLabel: "事件后解锁",
     bullets: ["输入新闻事件即可模拟链上指令", "高风险事件自动打开转让锁", "时间线保留每次状态变更"],
     target: "financePanel",
   },
@@ -112,6 +112,10 @@ const els = {
   downloadJsonBtn: document.querySelector("#downloadJsonBtn"),
   downloadReportBtn: document.querySelector("#downloadReportBtn"),
   credentialNote: document.querySelector("#credentialNote"),
+  credentialWorkbench: document.querySelector("#credentialWorkbench"),
+  credentialVisual: document.querySelector("#credentialVisual"),
+  credentialVisualStatus: document.querySelector("#credentialVisualStatus"),
+  credentialVisualHash: document.querySelector("#credentialVisualHash"),
   viewButtons: document.querySelectorAll(".ghost-btn[data-focus-target]"),
   moduleCards: document.querySelectorAll(".module-card"),
   moduleKicker: document.querySelector("#moduleKicker"),
@@ -230,11 +234,11 @@ function renderTimeline() {
 }
 
 function updateDecision({
-  stateLabel = "Awaiting Intelligence",
+  stateLabel = "等待识别",
   title = "等待贸易单据审单",
-  copy = "上传单据或使用样例资产后，系统将联动 OCR、多模态理解、合规 RAG 与 RWA 定价生成可解释融资建议。",
+  copy = "上传单据或使用样例资产后，系统将联动多模态单据识别、视觉复核、合规校验与动态资产治理。",
   action = "下一步：运行审单链路",
-  mode = "Demo / API Ready",
+  mode = "演示 / 接口就绪",
   confidence = "--",
   risk = "--",
   exposure = "--",
@@ -276,18 +280,18 @@ function renderDefaultEvidence() {
       },
       {
         title: "字段抽取",
-        tag: "OCR",
+        tag: "识别",
         detail: "将提取发货人、收货人、提单号、货物描述、毛重、金额与港口信息。",
       },
       {
-        title: "VACOT 视觉复核",
-        tag: "AUDIT",
+        title: "视觉复核",
+        tag: "复核",
         detail: "多模态理解会复核遮挡、水印、折痕、印章与低置信度字段一致性。",
       },
       {
-        title: "Agentic RAG 风控",
-        tag: "RAG",
-        detail: "模型基于推理、检索规划与合规知识提示，输出 IMDG、OFAC、MSDS、UN38.3 风险结论。",
+        title: "合规风控",
+        tag: "校验",
+        detail: "系统基于合规知识和贸易规则，输出 IMDG、OFAC、MSDS、UN38.3 风险结论。",
       },
     ],
     "待生成",
@@ -328,13 +332,27 @@ function setActiveStep(stepName) {
 function updateRouteStatus({
   eta = "18-22d",
   risk = "+12%",
-  asset = "PENDING",
-  signal = "STANDBY",
+  asset = "待生成",
+  signal = "待命",
 } = {}) {
   els.routeEta.textContent = eta;
   els.routeRisk.textContent = risk;
   els.routeAsset.textContent = asset;
   els.routeSignal.textContent = signal;
+}
+
+function updateCredentialVisual(status = "idle", hash = "--") {
+  if (!els.credentialVisual) return;
+  els.credentialVisual.dataset.status = status;
+  const labels = {
+    idle: "待生成",
+    pricing: "资产定价完成",
+    minting: "凭证生成中",
+    minted: "凭证已生成",
+    elevated: "风险已升高",
+  };
+  els.credentialVisualStatus.textContent = labels[status] || labels.idle;
+  els.credentialVisualHash.textContent = hash && hash !== "--" ? hash : "等待资产凭证";
 }
 
 function renderRisk(result) {
@@ -369,7 +387,7 @@ function inferRisk(fields) {
       ? "货物描述包含锂电池属性，需校验 UN38.3 测试摘要与 MSDS 文件。"
       : "未识别高危危险品关键词，建议保留人工抽检。",
     "建议核验提单号与船公司订舱信息的一致性。",
-    "当前航线存在中等港口拥堵风险，资产评级需绑定实时 AIS 事件。",
+    "当前航线存在中等港口拥堵风险，资产评级需绑定实时航运事件。",
   ];
 
   return {
@@ -386,6 +404,7 @@ function inferFinance(riskScore) {
 }
 
 function endpointMode() {
+  if (new URLSearchParams(window.location.search).has("demo")) return false;
   return LOCAL_API_HOSTS.has(window.location.hostname);
 }
 
@@ -406,13 +425,28 @@ function simulateOracleRisk(news = "") {
   const isDelay = /typhoon|storm|delay|台风|延误|route/i.test(news);
   return {
     riskLevel: isDelay ? "MEDIUM" : "LOW",
-    reason: isDelay ? "Force majeure delay" : "No severe route disruption identified",
+    reason: isDelay ? "不可抗力导致延误" : "未识别严重航线扰动",
     contractInstruction: isDelay
-      ? "setTransferLocked(true); updateAssetStatus('RISK_ELEVATED'); reduceFinancingUnlock(0.60)"
-      : "keepAssetStatus('IN_TRANSIT'); maintainFinancingUnlock(0.70)",
-    assetStatus: isDelay ? "RISK_ELEVATED" : "IN_TRANSIT",
+      ? "开启转让锁；资产状态更新为风险升高；融资解锁比例下调至 60%"
+      : "资产保持在途中；融资解锁比例维持 70%",
+    assetStatus: isDelay ? "风险升高" : "在途中",
     transferLocked: isDelay,
     financingUnlocked: isDelay ? 0.6 : 0.7,
+  };
+}
+
+function normalizeEventResult(result = {}) {
+  const elevated = result.transferLocked || result.riskLevel === "MEDIUM" || result.assetStatus === "RISK_ELEVATED";
+  return {
+    ...result,
+    riskLevel: elevated ? "MEDIUM" : "LOW",
+    reason: elevated ? "不可抗力导致延误" : "未识别严重航线扰动",
+    contractInstruction: elevated
+      ? "开启转让锁；资产状态更新为风险升高；融资解锁比例下调至 60%"
+      : "资产保持在途中；融资解锁比例维持 70%",
+    assetStatus: elevated ? "风险升高" : "在途中",
+    transferLocked: elevated,
+    financingUnlocked: elevated ? 0.6 : 0.7,
   };
 }
 
@@ -447,14 +481,14 @@ async function fileToDataUrl(file) {
 
 async function runOcr(documentData) {
   setActiveStep("ocr");
-  els.docStatus.textContent = endpointMode() ? "后端模型识别中" : "静态演示识别中";
-  updateRouteStatus({ eta: "SCANNING", risk: "CALC", asset: "PENDING", signal: "OCR" });
+  els.docStatus.textContent = endpointMode() ? "多模态识别中" : "静态演示识别中";
+  updateRouteStatus({ eta: "识别中", risk: "计算中", asset: "待生成", signal: "识别" });
   if (!endpointMode() || !state.file || !documentData) {
     pushTimeline("光学压缩感知", endpointMode() ? "未上传文件，使用样例单据进入演示链路" : "公开静态站点使用样例单据进入演示链路", "DEMO");
     await sleep(760);
     return { fields: { ...demoFields }, confidence: 0.936 };
   }
-  pushTimeline("光学压缩感知", "AIDP ModelHub 开始解析上传单据", "RUN");
+  pushTimeline("单据识别", "多模态服务开始解析上传单据", "RUN");
   let result = {};
   try {
     result = normalizeApiResult(await callBackend("/api/analyze", {
@@ -481,9 +515,9 @@ async function runOcr(documentData) {
 
 async function runVisionAudit(documentData, fields) {
   setActiveStep("vl");
-  els.docStatus.textContent = "VACOT 视觉审计中";
-  updateRouteStatus({ eta: "18-22d", risk: "VERIFY", asset: "PENDING", signal: "VACOT" });
-  pushTimeline("VACOT 审计", "Qwen3-VL 审计 Agent 复核水印、遮挡与低置信度字段", "RUN");
+  els.docStatus.textContent = "视觉复核中";
+  updateRouteStatus({ eta: "18-22d", risk: "复核中", asset: "待生成", signal: "复核" });
+  pushTimeline("视觉复核", "复核水印、遮挡与低置信度字段", "RUN");
 
   await sleep(820);
   return {
@@ -496,12 +530,13 @@ async function runReview() {
   const start = performance.now();
   els.runBtn.disabled = true;
   els.runBtn.innerHTML = `${PLAY_ICON} 审单中`;
-  const mode = endpointMode() ? "后端模型模式" : "演示模式";
+  const mode = endpointMode() ? "接口识别模式" : "演示模式";
   els.modeBadge.textContent = mode;
+  updateCredentialVisual("idle");
   updateDecision({
-    stateLabel: "Running Pipeline",
+    stateLabel: "链路运行中",
     title: "正在生成贸易资产风险画像",
-    copy: "系统正在串联光学压缩感知、VACOT 视觉审计、Agentic RAG 合规哨兵与动态 RWA 定价。",
+    copy: "系统正在串联多模态单据识别、视觉复核、合规校验与动态资产定价。",
     action: "当前：感知 / 审计链路运行中",
     mode,
     confidence: "--",
@@ -519,7 +554,7 @@ async function runReview() {
     renderFields();
     els.confidenceBadge.textContent = `置信度 ${(state.confidence * 100).toFixed(1)}%`;
     els.decisionConfidence.textContent = `${(state.confidence * 100).toFixed(1)}%`;
-    pushTimeline("光学压缩感知", "字段结构化完成", `${Math.round(state.confidence * 100)}%`);
+    pushTimeline("单据识别", "字段结构化完成", `${Math.round(state.confidence * 100)}%`);
 
     const audited = await runVisionAudit(documentData, state.fields);
     state.fields = audited.fields;
@@ -527,34 +562,35 @@ async function runReview() {
     renderFields();
     els.confidenceBadge.textContent = `置信度 ${(state.confidence * 100).toFixed(1)}%`;
     els.decisionConfidence.textContent = `${(state.confidence * 100).toFixed(1)}%`;
-    pushTimeline("VACOT 审计", "关键字段二次核验完成", `${Math.round(state.confidence * 100)}%`);
+    pushTimeline("视觉复核", "关键字段二次核验完成", `${Math.round(state.confidence * 100)}%`);
 
     setActiveStep("rag");
-    els.docStatus.textContent = "Agentic RAG 推理中";
-    updateRouteStatus({ eta: "18-22d", risk: "SCORING", asset: "PENDING", signal: "RAG" });
-    pushTimeline("Agentic RAG", "推理智能体识别隐含危险品属性并规划合规检索", "RUN");
+    els.docStatus.textContent = "合规校验中";
+    updateRouteStatus({ eta: "18-22d", risk: "评分中", asset: "待生成", signal: "校验" });
+    pushTimeline("合规校验", "识别隐含危险品属性并生成合规提示", "RUN");
     await sleep(640);
     const risk = ocr.risk || inferRisk(state.fields);
     state.riskScore = risk.score;
     renderRisk(risk);
     els.decisionRisk.textContent = `${risk.score} / 100`;
-    pushTimeline("Agentic RAG", `${risk.level}，生成 ${risk.alerts.length} 条合规提示`, risk.level);
+    pushTimeline("合规校验", `${risk.level}，生成 ${risk.alerts.length} 条合规提示`, risk.level);
 
     setActiveStep("rwa");
     els.docStatus.textContent = "资产定价完成";
     const finance = ocr.finance || inferFinance(state.riskScore);
     const loan = renderFinance(finance);
-    renderOracleState(ocr.oracle || { assetStatus: "IN_TRANSIT", transferLocked: false, financingUnlocked: 0.6 });
+    renderOracleState(ocr.oracle || { assetStatus: "在途中", transferLocked: false, financingUnlocked: 0.6 });
+    updateCredentialVisual("pricing");
     updateRouteStatus({
       eta: "18-22d",
       risk: `+${Math.max(8, risk.score - 36)}%`,
-      asset: "IN_TRANSIT",
-      signal: "READY",
+      asset: "在途中",
+      signal: "就绪",
     });
     updateDecision({
-      stateLabel: "Decision Ready",
+      stateLabel: "决策已生成",
       title: `${risk.level}资产，可进入确权融资`,
-      copy: `系统识别到 ${state.fields.goods}，结合单据可信度、IMDG/UN38.3 合规风险、AIS 航线事件与 AI 预言机状态，建议以 ${Math.round(finance.ltv * 100)}% LTV 进行审慎授信。`,
+      copy: `系统识别到 ${state.fields.goods}，结合单据可信度、IMDG/UN38.3 合规风险、航运事件与事件监听状态，建议以 ${Math.round(finance.ltv * 100)}% LTV 进行审慎授信。`,
       action: "下一步：生成资产凭证",
       mode,
       confidence: `${(state.confidence * 100).toFixed(1)}%`,
@@ -566,7 +602,7 @@ async function runReview() {
         {
           title: "单据可信度",
           tag: `${Math.round(state.confidence * 100)}%`,
-          detail: `提单号 ${state.fields.blNumber} 与发货人、收货人、港口字段完成光学压缩抽取与 VACOT 视觉复核。`,
+          detail: `提单号 ${state.fields.blNumber} 与发货人、收货人、港口字段完成结构化抽取与视觉复核。`,
         },
         {
           title: "隐含合规风险",
@@ -575,8 +611,8 @@ async function runReview() {
         },
         {
           title: "航线事件",
-          tag: "ORACLE",
-          detail: `${state.fields.originPort} 至 ${state.fields.destinationPort} 航线存在中等拥堵风险，AI 预言机需绑定 AIS 与港口事件。`,
+          tag: "事件",
+          detail: `${state.fields.originPort} 至 ${state.fields.destinationPort} 航线存在中等拥堵风险，系统需绑定航运与港口事件。`,
         },
         {
           title: "融资结论",
@@ -596,14 +632,14 @@ async function runReview() {
     setDownloadReady(true);
     els.simulateNewsBtn.disabled = false;
     if (ocr.warning) pushTimeline("后端代理", ocr.warning, "FALLBACK");
-    pushTimeline("动态 RWA 治理", `AI 预言机建议 LTV ${Math.round(finance.ltv * 100)}%，评级 ${finance.rating}`, "READY");
+    pushTimeline("动态 RWA 治理", `事件监听建议 LTV ${Math.round(finance.ltv * 100)}%，评级 ${finance.rating}`, "READY");
 
     els.latencyValue.textContent = `${Math.round(performance.now() - start)} ms`;
   } catch (error) {
     pushTimeline("接口异常", error.message, "ERR");
     els.docStatus.textContent = "接口异常";
     updateDecision({
-      stateLabel: "Pipeline Error",
+      stateLabel: "链路异常",
       title: "接口调用未完成",
       copy: error.message,
       action: "下一步：检查 API 地址或切回演示模式",
@@ -667,15 +703,16 @@ function resetApp() {
   els.mintBtn.disabled = true;
   els.simulateNewsBtn.disabled = true;
   els.tokenIdValue.textContent = "--";
-  els.assetStatusValue.textContent = "PENDING";
+  els.assetStatusValue.textContent = "待生成";
   els.assetStatusValue.classList.remove("status-warning");
   els.financingUnlockedValue.textContent = "--";
-  els.transferLockValue.textContent = "OFF";
-  els.oracleOutput.textContent = "等待 AI 预言机事件。";
+  els.transferLockValue.textContent = "关闭";
+  els.oracleOutput.textContent = "等待事件监听结果。";
+  updateCredentialVisual("idle");
   updateRouteStatus();
   setDownloadReady(false);
   els.mintBtn.innerHTML = `${ASSET_ICON} 生成 RWA 资产凭证`;
-  els.modeBadge.textContent = endpointMode() ? "后端模型模式" : "演示模式";
+  els.modeBadge.textContent = endpointMode() ? "接口识别模式" : "演示模式";
   els.credentialNote.textContent = "资产凭证生成后可下载审计 JSON 与合规报告。";
   els.latencyValue.textContent = "-- ms";
   updateDecision();
@@ -713,24 +750,26 @@ els.mintBtn.addEventListener("click", () => {
   if (!state.extractedJson) return;
   const hash = makeTokenHash();
   state.credentialId = hash;
+  updateCredentialVisual("minting", "正在写入凭证哈希");
   els.mintAnimation.classList.add("active");
   setTimeout(() => els.mintAnimation.classList.remove("active"), 1800);
-  els.assetState.textContent = "IN_TRANSIT";
+  els.assetState.textContent = "在途中";
   els.tokenIdValue.textContent = state.credentialId;
-  els.assetStatusValue.textContent = "IN_TRANSIT";
+  els.assetStatusValue.textContent = "在途中";
   els.financingUnlockedValue.textContent = "60%";
-  els.transferLockValue.textContent = "OFF";
+  els.transferLockValue.textContent = "关闭";
+  updateCredentialVisual("minted", state.credentialId);
   updateRouteStatus({
     eta: "18-22d",
     risk: els.decisionRisk.textContent === "--" ? "+12%" : els.routeRisk.textContent,
-    asset: "MINTED",
-    signal: "SIGNED",
+    asset: "已生成",
+    signal: "已签名",
   });
   els.mintBtn.innerHTML = `${ASSET_ICON} RWA 凭证已生成`;
   updateDecision({
-    stateLabel: "Credential Ready",
-    title: "RWA Asset NFT 已铸造",
-    copy: "资产元数据已生成，状态进入 IN_TRANSIT；融资解锁 60%，等待 AI 预言机持续监听在途风险。",
+    stateLabel: "凭证已生成",
+    title: "RWA 资产凭证已生成",
+    copy: "资产元数据已生成，状态进入在途中；融资解锁 60%，等待事件监听持续更新在途风险。",
     action: "下一步：输入新闻事件并模拟链上状态更新",
     mode: els.modeBadge.textContent,
     confidence: els.decisionConfidence.textContent,
@@ -739,36 +778,44 @@ els.mintBtn.addEventListener("click", () => {
   });
   state.extractedJson.credential = {
     id: state.credentialId,
-    status: "IN_TRANSIT",
+    status: "在途中",
     financingUnlocked: "60%",
-    auditLog: "NFT metadata generated and minting simulated",
+    auditLog: "RWA credential metadata generated and signing simulated",
   };
   if (state.complianceReport) {
     state.complianceReport.credentialId = state.credentialId;
-    state.complianceReport.recommendedAction = "对接金融机构授信工作流，并持续绑定 AIS、港口拥堵与制裁事件。";
+    state.complianceReport.recommendedAction = "对接金融机构授信工作流，并持续绑定航运、港口拥堵与制裁事件。";
   }
-  els.credentialNote.textContent = `NFT Token Hash ${state.credentialId} 已生成，Asset status: IN_TRANSIT，Financing unlocked: 60%。`;
+  els.credentialNote.textContent = `凭证哈希 ${state.credentialId} 已生成，资产状态：在途中，融资解锁：60%。`;
   els.evidenceBadge.textContent = "已留痕";
   pushTimeline("动态 RWA 凭证", "生成链下资产凭证并写入审计日志", "MINT");
 });
 
 els.simulateNewsBtn.addEventListener("click", async () => {
-  const result = endpointMode()
-    ? await callBackend("/api/oracle-risk", { news: els.newsInput.value })
-    : simulateOracleRisk(els.newsInput.value);
+  let rawResult;
+  try {
+    rawResult = endpointMode()
+      ? await callBackend("/api/oracle-risk", { news: els.newsInput.value })
+      : simulateOracleRisk(els.newsInput.value);
+  } catch (error) {
+    rawResult = simulateOracleRisk(els.newsInput.value);
+    pushTimeline("事件监听", `本地事件接口不可用，已切换演示链路：${error.message}`, "DEMO");
+  }
+  const result = normalizeEventResult(rawResult);
   renderOracleState(result);
   updateRouteStatus({
     eta: result.transferLocked ? "21-25d" : "18-22d",
     risk: result.transferLocked ? "+24%" : "+10%",
-    asset: result.assetStatus || "IN_TRANSIT",
-    signal: result.riskLevel || "LOW",
+    asset: result.transferLocked ? "风险升高" : "在途中",
+    signal: result.riskLevel === "MEDIUM" ? "中风险" : "低风险",
   });
+  if (result.transferLocked) updateCredentialVisual("elevated", state.credentialId || "风险升高，等待凭证");
   els.oracleOutput.textContent = JSON.stringify({
-    riskLevel: result.riskLevel,
-    reason: result.reason,
-    contractUpdateInstruction: result.contractInstruction,
+    风险等级: result.riskLevel === "MEDIUM" ? "中风险" : "低风险",
+    原因: result.reason,
+    状态更新指令: result.contractInstruction,
   }, null, 2);
-  pushTimeline("AI 预言机", `${result.riskLevel} / ${result.reason}`, "ORACLE");
+  pushTimeline("事件监听", `${result.riskLevel === "MEDIUM" ? "中风险" : "低风险"} / ${result.reason}`, "事件");
 });
 
 els.downloadJsonBtn.addEventListener("click", () => {
@@ -808,15 +855,15 @@ renderTimeline();
 renderDefaultEvidence();
 renderProductModule("perception");
 setDownloadReady(false);
-els.modeBadge.textContent = endpointMode() ? "后端模型模式" : "演示模式";
+els.modeBadge.textContent = endpointMode() ? "接口识别模式" : "演示模式";
 updateRouteStatus();
 setupRevealEffects();
 
 function buildExtractedJson({ risk = null, finance = null, loan = null, latencyMs = null } = {}) {
   return {
     documentType: "Bill of Lading",
-    extractionEngine: "DeepSeek-OCR-2 optical context compression",
-    auditAgent: "VACOT-driven Qwen3-VL verifier",
+    extractionEngine: "multimodal document recognition",
+    auditAgent: "visual document verifier",
     fields: { ...state.fields },
     confidence: Number((state.confidence || 0.982).toFixed(3)),
     risk: risk || {
@@ -841,23 +888,23 @@ function buildComplianceReport(risk = null, finance = null, loan = null) {
     alerts: [
       "货物描述包含锂电池属性，需校验 UN38.3 测试摘要与 MSDS 文件。",
       "建议核验提单号与船公司订舱信息的一致性。",
-      "当前航线存在中等港口拥堵风险，资产评级需绑定实时 AIS 事件。",
+      "当前航线存在中等港口拥堵风险，资产评级需绑定实时航运事件。",
     ],
   };
   const activeFinance = finance || { ltv: 0.7, rating: "AA" };
   return {
-    title: "MetaTrade Compliance Report",
+    title: "MetaTrade 合规报告",
     riskScore: activeRisk.score,
     riskLevel: activeRisk.level,
     flaggedEntities: [
-      "Bluetooth Headphones",
-      "Lithium Battery",
+      "蓝牙耳机",
+      "锂电池",
       "UN38.3",
       "MSDS",
-      "Port Klang",
+      "巴生港",
     ],
     analysisSummary: activeRisk.alerts.join(" "),
-    recommendedAction: `建议 LTV ${Math.round(activeFinance.ltv * 100)}%，资产评级 ${activeFinance.rating}，可融资额 ${loan ? formatCurrency(loan) : els.loanValue.textContent || formatCurrency(1960000)}。发货前补全 UN38.3 与 MSDS，并绑定 AIS / 港口拥堵事件。`,
+    recommendedAction: `建议 LTV ${Math.round(activeFinance.ltv * 100)}%，资产评级 ${activeFinance.rating}，可融资额 ${loan ? formatCurrency(loan) : els.loanValue.textContent || formatCurrency(1960000)}。发货前补全 UN38.3 与 MSDS，并绑定航运 / 港口拥堵事件。`,
     generatedAt: new Date().toISOString(),
   };
 }
@@ -869,13 +916,14 @@ function setDownloadReady(ready) {
 
 function renderOracleState(oracle) {
   if (!oracle) return;
-  els.assetStatusValue.textContent = oracle.assetStatus || "IN_TRANSIT";
-  els.assetState.textContent = oracle.assetStatus || "IN_TRANSIT";
+  const statusText = oracle.transferLocked ? "风险升高" : "在途中";
+  els.assetStatusValue.textContent = statusText;
+  els.assetState.textContent = statusText;
   els.assetStatusValue.classList.toggle("status-warning", Boolean(oracle.transferLocked));
   els.financingUnlockedValue.textContent = `${Math.round((oracle.financingUnlocked || 0.6) * 100)}%`;
-  els.transferLockValue.textContent = oracle.transferLocked ? "ON" : "OFF";
+  els.transferLockValue.textContent = oracle.transferLocked ? "开启" : "关闭";
   if (oracle.transferLocked) {
-    els.credentialNote.textContent = "Secondary market trading disabled due to elevated risk";
+    els.credentialNote.textContent = "风险升高，资产转让已临时锁定。";
   }
 }
 
@@ -908,6 +956,15 @@ function downloadFile(filename, content, type) {
   URL.revokeObjectURL(url);
 }
 
+function pdfSafeText(value) {
+  return String(value ?? "")
+    .normalize("NFKD")
+    .replace(/[^\x20-\x7E]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/[()\\]/g, "\\$&");
+}
+
 function buildCompliancePdf(report) {
   const lines = [
     "MetaTrade Compliance Report",
@@ -917,7 +974,7 @@ function buildCompliancePdf(report) {
     `Analysis summary: ${report.analysisSummary}`,
     `Recommended action: ${report.recommendedAction}`,
     `Generated at: ${report.generatedAt}`,
-  ].map((line) => line.replace(/[()\\]/g, "\\$&"));
+  ].map(pdfSafeText);
   const textOps = lines.map((line, index) => `BT /F1 11 Tf 52 ${760 - index * 24} Td (${line}) Tj ET`).join("\n");
   const objects = [
     "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj",
