@@ -528,8 +528,8 @@ async function runOcr(documentData) {
   setActiveStep("ocr");
   els.docStatus.textContent = endpointMode() ? "多模态识别中" : "静态演示识别中";
   updateRouteStatus({ eta: "识别中", risk: "计算中", asset: "待生成", signal: "识别" });
-  if (!endpointMode() || !state.file || !documentData) {
-    pushTimeline("光学压缩感知", endpointMode() ? "未上传文件，使用样例单据进入演示链路" : "公开静态站点使用样例单据进入演示链路", "DEMO");
+  if (!endpointMode()) {
+    pushTimeline("光学压缩感知", "公开静态站点使用样例单据进入演示链路", "DEMO");
     await sleep(760);
     return { fields: { ...demoFields }, confidence: 0.936 };
   }
@@ -539,7 +539,7 @@ async function runOcr(documentData) {
     result = normalizeApiResult(await callBackend("/api/analyze", {
       fileName: state.file?.name || "demo-bill-of-lading",
       mimeType: state.file?.type || "image/jpeg",
-      dataUrl: documentData,
+      dataUrl: documentData || "",
     })) || {};
   } catch (error) {
     const warning = `本地 API 不可用，已切换演示链路：${error.message}`;
