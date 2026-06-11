@@ -537,7 +537,7 @@ function applyEventRepricing(eventResult) {
       auditLog: "Event-driven repricing applied after oracle status update",
     };
   }
-  state.complianceReport = buildComplianceReport(nextRisk, nextFinance, nextLoan);
+  state.complianceReport = buildComplianceReport(nextRisk, nextFinance, nextLoan, state.complianceReport?.llmReport, state.complianceReport?.thinking, eventResult);
   els.credentialNote.textContent = elevated
     ? `事件已触发重定价：LTV ${Math.round(nextFinance.ltv * 100)}%，可融资额 ${formatCurrency(nextLoan)}，转让锁已开启。`
     : `事件已确认稳定：LTV ${Math.round(nextFinance.ltv * 100)}%，可融资额 ${formatCurrency(nextLoan)}。`;
@@ -686,6 +686,8 @@ async function runOcr(documentData) {
     risk: result.risk,
     finance: result.finance,
     oracle: result.oracle,
+    report: result.report,
+    thinking: result.thinking,
     warning: result.warning,
   };
 }
@@ -809,7 +811,7 @@ async function runReview() {
       loan,
       latencyMs: Math.round(performance.now() - start),
     });
-    state.complianceReport = buildComplianceReport(risk, finance, loan);
+    state.complianceReport = buildComplianceReport(risk, finance, loan, ocr.report, ocr.thinking);
     setDownloadReady(true);
     els.simulateNewsBtn.disabled = false;
     if (ocr.warning) pushTimeline("后端代理", ocr.warning, "FALLBACK");
@@ -1009,6 +1011,7 @@ els.simulateNewsBtn.addEventListener("click", async () => {
     风险等级: result.riskLevel === "MEDIUM" ? "中风险" : "低风险",
     原因: result.reason,
     状态更新指令: result.contractInstruction,
+    决策思考: result.thinking?.summary || result.impact?.requiredAction || "系统已根据事件影响重新评估资产状态。",
     更新后LTV: `${Math.round(repriced.finance.ltv * 100)}%`,
     更新后可融资额: formatCurrency(repriced.loan),
     更新后评级: repriced.finance.rating,
@@ -1093,7 +1096,7 @@ function buildExtractedJson({ risk = null, finance = null, loan = null, latencyM
   };
 }
 
-function buildComplianceReport(risk = null, finance = null, loan = null) {
+function buildComplianceReport(risk = null, finance = null, loan = null, llmReport = null, thinking = null, eventResult = null) {
   const activeRisk = risk || {
     score: state.riskScore || 48,
     level: els.riskLevel.textContent || "中风险",
@@ -1104,6 +1107,50 @@ function buildComplianceReport(risk = null, finance = null, loan = null) {
     ],
   };
   const activeFinance = finance || { ltv: 0.7, rating: "AA" };
+  const fields = state.fields || {};
+  const amountText = fields.amount || "CNY 2,800,000";
+  const loanText = loan ? formatCurrency(loan) : els.loanValue.textContent || formatCurrency(1960000);
+  const baseReport = {
+    title: "MetaTrade 智能合规与融资决策报告",
+    executiveSummary: `系统已读取贸易单据，识别到货物为「${fields.goods || "--"}」，起运港为「${fields.originPort || "--"}」，目的港为「${fields.destinationPort || "--"}」。当前风险等级为「${activeRisk.level}」，建议 LTV 为 ${Math.round(activeFinance.ltv * 100)}%，可融资额为 ${loanText}。`,
+    documentUnderstanding: [
+      `提单号：${fields.blNumber || "--"}。提单号用于把货物、承运、港口和融资申请绑定到同一笔贸易资产。`,
+      `发货人：${fields.shipper || "--"}；收货人：${fields.consignee || "--"}。这两项用于确认交易双方和后续付款/交付责任。`,
+      `货值：${amountText}；毛重：${fields.grossWeight || "--"}。货值是计算可融资额的基础，毛重和货物描述用于判断物流与合规风险。`,
+    ],
+    complianceReview: activeRisk.alerts?.length ? activeRisk.alerts : [
+      "系统未发现明确高危关键词，但仍建议人工复核提单号、装箱信息、发票金额和贸易双方一致性。",
+    ],
+    riskAssessment: [
+      `风险评分为 ${activeRisk.score}/100，风险等级为「${activeRisk.level}」。`,
+      "评分综合考虑货物属性、港口路径、文件完整性、潜在危险品要求和在途事件影响。",
+      "如果后续出现台风、港口拥堵、制裁名单命中或交付延期，系统会重新计算 LTV 和可融资额。",
+    ],
+    financingDecision: [
+      `建议资产评级：${activeFinance.rating}。`,
+      `建议 LTV：${Math.round(activeFinance.ltv * 100)}%。`,
+      `建议可融资额：${loanText}。`,
+      "这个额度不是最终放款承诺，而是基于当前单据可信度和风险证据生成的授信建议。",
+    ],
+    requiredActions: [
+      "复核提单号、箱号、封签号与承运方记录是否一致。",
+      "核验发票金额、付款条款和收货人信息是否与贸易合同一致。",
+      "如涉及电池、化工品或特殊监管货物，补充 MSDS、UN38.3 或其他合规证明。",
+      "持续监听航运、港口拥堵、天气和监管事件，并在事件发生时重新评估融资条件。",
+    ],
+    plainLanguageExplanation: "简单来说，这份报告把一张提单拆成三件事：第一，确认单据是否可信；第二，判断这批货有没有合规和物流风险；第三，把风险转化成银行能理解的 LTV、评级和可融资额。",
+  };
+  const mergedReport = { ...baseReport, ...(llmReport || {}) };
+  if (eventResult) {
+    mergedReport.eventUpdate = {
+      summary: eventResult.thinking?.summary || eventResult.reason || "事件监听已更新资产状态。",
+      impact: eventResult.impact || {
+        ltvAdjustment: `更新后 LTV ${Math.round(activeFinance.ltv * 100)}%`,
+        financingImpact: `更新后可融资额 ${loanText}`,
+        requiredAction: eventResult.transferLocked ? "建议复核授信额度并补充事件证明。" : "建议维持授信并持续监听事件。",
+      },
+    };
+  }
   return {
     title: "MetaTrade 合规报告",
     riskScore: activeRisk.score,
@@ -1117,6 +1164,11 @@ function buildComplianceReport(risk = null, finance = null, loan = null) {
     ],
     analysisSummary: activeRisk.alerts.join(" "),
     recommendedAction: `建议 LTV ${Math.round(activeFinance.ltv * 100)}%，资产评级 ${activeFinance.rating}，可融资额 ${loan ? formatCurrency(loan) : els.loanValue.textContent || formatCurrency(1960000)}。发货前补全 UN38.3 与 MSDS，并绑定航运 / 港口拥堵事件。`,
+    llmReport: mergedReport,
+    thinking: thinking || {
+      summary: "系统根据单据字段、货物属性、航线和事件状态生成融资建议。",
+      steps: ["读取单据字段", "判断合规风险", "计算 LTV 与可融资额", "等待事件监听更新"],
+    },
     generatedAt: new Date().toISOString(),
   };
 }
@@ -1177,35 +1229,57 @@ function pdfSafeText(value) {
     .replace(/[()\\]/g, "\\$&");
 }
 
+function normalizeReportList(value) {
+  if (Array.isArray(value)) return value.filter(Boolean).map(String);
+  if (typeof value === "string" && value.trim()) return [value.trim()];
+  return [];
+}
+
 function buildCompliancePdf(report) {
-  const lines = [
-    "MetaTrade Compliance Report",
-    `Risk score: ${report.riskScore}`,
-    `Risk level: ${report.riskLevel}`,
-    `Flagged entities: ${report.flaggedEntities.join(", ")}`,
-    `Analysis summary: ${report.analysisSummary}`,
-    `Recommended action: ${report.recommendedAction}`,
-    `Generated at: ${report.generatedAt}`,
-  ].map(pdfSafeText);
-  const textOps = lines.map((line, index) => `BT /F1 11 Tf 52 ${760 - index * 24} Td (${line}) Tj ET`).join("\n");
-  const objects = [
-    "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj",
-    "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj",
-    "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj",
-    "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj",
-    `5 0 obj << /Length ${textOps.length} >> stream\n${textOps}\nendstream endobj`,
+  const detail = report.llmReport || {};
+  const sections = [
+    ["报告摘要", normalizeReportList(detail.executiveSummary)],
+    ["单据字段解读", normalizeReportList(detail.documentUnderstanding)],
+    ["合规审查", normalizeReportList(detail.complianceReview)],
+    ["风险评估", normalizeReportList(detail.riskAssessment)],
+    ["融资决策", normalizeReportList(detail.financingDecision)],
+    ["后续行动建议", normalizeReportList(detail.requiredActions)],
+    ["通俗解释", normalizeReportList(detail.plainLanguageExplanation)],
   ];
-  let pdf = "%PDF-1.4\n";
-  const offsets = [0];
-  objects.forEach((object) => {
-    offsets.push(pdf.length);
-    pdf += `${object}\n`;
+  if (detail.eventUpdate) {
+    sections.push([
+      "事件监听后的动态更新",
+      [
+        detail.eventUpdate.summary,
+        detail.eventUpdate.impact?.ltvAdjustment,
+        detail.eventUpdate.impact?.financingImpact,
+        detail.eventUpdate.impact?.requiredAction,
+      ].filter(Boolean),
+    ]);
+  }
+  sections.push([
+    "系统决策思考摘要",
+    [
+      report.thinking?.summary,
+      ...(Array.isArray(report.thinking?.steps) ? report.thinking.steps : []),
+    ].filter(Boolean),
+  ]);
+
+  const lines = [
+    detail.title || report.title || "MetaTrade 智能合规与融资决策报告",
+    `生成时间：${report.generatedAt}`,
+    `风险评分：${report.riskScore}/100`,
+    `风险等级：${report.riskLevel}`,
+    `摘要：${report.analysisSummary}`,
+    `建议：${report.recommendedAction}`,
+    "",
+  ];
+  sections.forEach(([heading, items]) => {
+    lines.push(`【${heading}】`);
+    if (!items.length) lines.push("暂无补充内容。");
+    items.forEach((item, index) => lines.push(`${index + 1}. ${item}`));
+    lines.push("");
   });
-  const xrefOffset = pdf.length;
-  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-  offsets.slice(1).forEach((offset) => {
-    pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
-  });
-  pdf += `trailer << /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
-  return pdf;
+  lines.push("说明：本报告用于演示贸易金融智能审单、风险分析、资产确权和事件驱动重定价流程，不构成真实授信承诺。");
+  return lines.join("\n");
 }
