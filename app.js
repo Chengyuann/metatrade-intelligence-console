@@ -1220,15 +1220,6 @@ function downloadFile(filename, content, type) {
   URL.revokeObjectURL(url);
 }
 
-function pdfSafeText(value) {
-  return String(value ?? "")
-    .normalize("NFKD")
-    .replace(/[^\x20-\x7E]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .replace(/[()\\]/g, "\\$&");
-}
-
 function normalizeReportList(value) {
   if (Array.isArray(value)) return value.filter(Boolean).map(String);
   if (typeof value === "string" && value.trim()) return [value.trim()];
