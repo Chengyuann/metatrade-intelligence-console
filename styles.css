@@ -1573,6 +1573,39 @@ input:focus-visible,
   box-shadow: var(--inner);
 }
 
+.partner-logos {
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  z-index: 4;
+  display: flex;
+  gap: 8px;
+}
+
+.partner-logos span {
+  width: 104px;
+  min-height: 74px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 4px;
+  border: 1px solid rgba(49, 95, 79, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 254, 250, 0.86);
+  color: var(--accent-strong);
+  font-family: var(--mono);
+  font-size: 10px;
+  box-shadow: 0 12px 28px rgba(38, 34, 28, 0.08), var(--inner);
+}
+
+.partner-logos img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+  mix-blend-mode: multiply;
+}
+
 .signal-node {
   position: absolute;
   z-index: 2;
@@ -1645,6 +1678,15 @@ input:focus-visible,
   padding: 14px;
   background: rgba(255, 254, 250, 0.68);
   box-shadow: var(--inner);
+}
+
+.connectivity-grid article > img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  display: block;
+  margin-bottom: 10px;
+  mix-blend-mode: multiply;
 }
 
 .connectivity-grid span {
@@ -2999,6 +3041,21 @@ input:focus-visible,
 
   .connectivity-visual {
     min-height: 178px;
+  }
+
+  .partner-logos {
+    left: 10px;
+    top: 10px;
+  }
+
+  .partner-logos span {
+    width: 86px;
+    min-height: 64px;
+  }
+
+  .partner-logos img {
+    width: 38px;
+    height: 38px;
   }
 
   .connectivity-grid {
