@@ -276,6 +276,185 @@ input:focus-visible,
   justify-content: center;
 }
 
+.guide-tab {
+  position: fixed;
+  right: 0;
+  top: 42%;
+  z-index: 8;
+  min-height: 118px;
+  width: 42px;
+  writing-mode: vertical-rl;
+  letter-spacing: 0;
+  border: 1px solid rgba(49, 95, 79, 0.22);
+  border-right: 0;
+  border-radius: 14px 0 0 14px;
+  background: rgba(255, 254, 250, 0.88);
+  color: var(--accent-strong);
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 18px 44px rgba(38, 34, 28, 0.12), var(--inner);
+  backdrop-filter: blur(20px) saturate(1.08);
+}
+
+.guide-tab:hover {
+  transform: translateX(-2px);
+}
+
+.guide-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  justify-items: end;
+  background: rgba(23, 27, 24, 0);
+  pointer-events: none;
+  transition: background-color 220ms ease;
+}
+
+.guide-drawer.is-open {
+  background: rgba(23, 27, 24, 0.22);
+  pointer-events: auto;
+}
+
+.guide-panel {
+  width: min(460px, calc(100vw - 24px));
+  height: 100%;
+  overflow: auto;
+  border-left: 1px solid rgba(49, 95, 79, 0.16);
+  padding: 28px;
+  background:
+    radial-gradient(circle at 20% 8%, rgba(255, 255, 252, 0.96), transparent 30%),
+    linear-gradient(180deg, rgba(255, 254, 250, 0.97), rgba(241, 245, 240, 0.94));
+  box-shadow: -28px 0 80px rgba(38, 34, 28, 0.18), var(--inner);
+  transform: translateX(100%);
+  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.guide-drawer.is-open .guide-panel {
+  transform: translateX(0);
+}
+
+.guide-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 254, 250, 0.74);
+  color: var(--accent-strong);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.guide-panel h2 {
+  max-width: 10ch;
+  margin: 18px 0 12px;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 38px;
+  line-height: 1.02;
+  font-weight: 800;
+}
+
+.guide-lead {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.guide-steps {
+  margin: 22px 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  counter-reset: guide;
+}
+
+.guide-steps li {
+  counter-increment: guide;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  border: 1px solid rgba(49, 95, 79, 0.12);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 254, 250, 0.68);
+  box-shadow: var(--inner);
+}
+
+.guide-steps li::before {
+  content: counter(guide, decimal-leading-zero);
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.guide-steps strong,
+.guide-steps span {
+  grid-column: 2;
+}
+
+.guide-steps strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.guide-steps span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.guide-note,
+.guide-contact {
+  border: 1px solid rgba(49, 95, 79, 0.12);
+  border-radius: 12px;
+  padding: 14px;
+  background: rgba(255, 254, 250, 0.68);
+  box-shadow: var(--inner);
+}
+
+.guide-note strong,
+.guide-contact span {
+  display: block;
+  color: var(--accent-strong);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.guide-note p {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.guide-contact {
+  margin-top: 12px;
+  font-style: normal;
+}
+
+.guide-contact a {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 13px;
+  text-decoration-color: rgba(49, 95, 79, 0.34);
+  overflow-wrap: anywhere;
+}
+
 .app-shell {
   position: relative;
   z-index: 1;
@@ -3159,6 +3338,27 @@ input:focus-visible,
 }
 
 @media (max-width: 430px) {
+  .guide-tab {
+    top: auto;
+    right: 10px;
+    bottom: 78px;
+    width: auto;
+    min-height: 38px;
+    writing-mode: horizontal-tb;
+    border-right: 1px solid rgba(49, 95, 79, 0.22);
+    border-radius: 999px;
+    padding: 0 14px;
+  }
+
+  .guide-panel {
+    width: 100%;
+    padding: 22px 16px;
+  }
+
+  .guide-panel h2 {
+    font-size: 31px;
+  }
+
   .process-toast {
     left: 10px;
     right: 10px;

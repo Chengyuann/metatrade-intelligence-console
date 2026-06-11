@@ -139,6 +139,9 @@ const els = {
   processToastTitle: document.querySelector("#processToastTitle"),
   processToastCopy: document.querySelector("#processToastCopy"),
   processToastAction: document.querySelector("#processToastAction"),
+  guideOpenBtn: document.querySelector("#guideOpenBtn"),
+  guideCloseBtn: document.querySelector("#guideCloseBtn"),
+  guideDrawer: document.querySelector("#guideDrawer"),
 };
 
 function setupRevealEffects() {
@@ -222,6 +225,18 @@ function hideProcessToast(delay = 0) {
 function markProcessStage(stepName, title, copy) {
   document.body.dataset.processStage = stepName;
   showProcessToast(title, copy, { thinking: true });
+}
+
+function setGuideOpen(open) {
+  if (!els.guideDrawer || !els.guideOpenBtn) return;
+  els.guideDrawer.classList.toggle("is-open", open);
+  els.guideDrawer.setAttribute("aria-hidden", String(!open));
+  els.guideOpenBtn.setAttribute("aria-expanded", String(open));
+  if (open) {
+    els.guideCloseBtn?.focus();
+  } else {
+    els.guideOpenBtn.focus();
+  }
 }
 
 function renderProductModule(moduleKey = "perception") {
@@ -1063,6 +1078,17 @@ if (els.processToastAction) {
     hideProcessToast(600);
   });
 }
+
+els.guideOpenBtn?.addEventListener("click", () => setGuideOpen(true));
+els.guideCloseBtn?.addEventListener("click", () => setGuideOpen(false));
+els.guideDrawer?.addEventListener("click", (event) => {
+  if (event.target === els.guideDrawer) setGuideOpen(false);
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && els.guideDrawer?.classList.contains("is-open")) {
+    setGuideOpen(false);
+  }
+});
 
 renderFields();
 renderTimeline();

@@ -60,6 +60,32 @@
       </div>
       <button class="toast-action" id="processToastAction" type="button">查看融资建议</button>
     </div>
+    <button class="guide-tab" id="guideOpenBtn" type="button" aria-controls="guideDrawer" aria-expanded="false">
+      使用说明
+    </button>
+    <aside class="guide-drawer" id="guideDrawer" aria-hidden="true" aria-label="MetaTrade 使用说明">
+      <div class="guide-panel">
+        <button class="guide-close" id="guideCloseBtn" type="button" aria-label="关闭使用说明">×</button>
+        <p class="eyebrow">How to use</p>
+        <h2>MetaTrade 使用说明</h2>
+        <p class="guide-lead">按顺序完成单据识别、风险判断、资产确权和事件监听，即可演示一张贸易单据如何变成可融资资产。</p>
+        <ol class="guide-steps">
+          <li><strong>上传单据</strong><span>使用 PNG、JPG、WebP 或 PDF，建议先用演示电子提单测试字段抽取。</span></li>
+          <li><strong>开始审单</strong><span>系统会抽取发货人、收货人、提单号、货值、港口和货物描述，并生成风险证据。</span></li>
+          <li><strong>生成资产凭证</strong><span>确认建议 LTV、可融资额和评级后，生成 RWA 资产凭证并保留审计记录。</span></li>
+          <li><strong>模拟事件更新</strong><span>输入台风、延误、港口拥堵等事件，查看 LTV、融资额和转让锁如何动态调整。</span></li>
+          <li><strong>下载结果</strong><span>下载抽取 JSON 和中文合规报告，用于展示完整风控闭环。</span></li>
+        </ol>
+        <div class="guide-note">
+          <strong>演示建议</strong>
+          <p>先上传一份电子提单，再依次点击“开始审单”“生成 RWA 资产凭证”“模拟链上状态更新”。事件更新后可点击浮动提示跳转到融资建议。</p>
+        </div>
+        <address class="guide-contact">
+          <span>问题反馈</span>
+          <a href="mailto:machengyuan@bytedance.com">machengyuan@bytedance.com</a>
+        </address>
+      </div>
+    </aside>
     <main class="app-shell">
       <aside class="sidebar" aria-label="MetaTrade 控制台">
         <div class="brand">
