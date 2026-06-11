@@ -548,8 +548,11 @@ async function runOcr(documentData) {
     return { fields: { ...demoFields }, confidence: 0.936, warning };
   }
   state.backendResult = result;
+  const extractedFields = result.fields && Object.values(result.fields).some((value) => String(value ?? "").trim())
+    ? result.fields
+    : demoFields;
   return {
-    fields: { ...demoFields, ...(result.fields || {}) },
+    fields: extractedFields,
     confidence: result.confidence || 0.936,
     risk: result.risk,
     finance: result.finance,
@@ -566,7 +569,7 @@ async function runVisionAudit(documentData, fields) {
 
   await sleep(820);
   return {
-    fields: { ...fields, goods: "Bluetooth Headphones with Lithium Batteries" },
+    fields,
     confidence: state.backendResult?.confidence || 0.982,
   };
 }
