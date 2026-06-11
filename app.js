@@ -135,6 +135,10 @@ const els = {
   moduleMetric: document.querySelector("#moduleMetric"),
   moduleMetricLabel: document.querySelector("#moduleMetricLabel"),
   moduleJumpBtn: document.querySelector("#moduleJumpBtn"),
+  processToast: document.querySelector("#processToast"),
+  processToastTitle: document.querySelector("#processToastTitle"),
+  processToastCopy: document.querySelector("#processToastCopy"),
+  processToastAction: document.querySelector("#processToastAction"),
 };
 
 function setupRevealEffects() {
@@ -195,6 +199,29 @@ function collapseWorkSections() {
     section.open = false;
     section.classList.remove("is-active");
   });
+}
+
+function showProcessToast(title, copy, { thinking = true, action = false } = {}) {
+  if (!els.processToast) return;
+  els.processToastTitle.textContent = title;
+  els.processToastCopy.textContent = copy;
+  els.processToast.classList.toggle("is-visible", true);
+  els.processToast.classList.toggle("is-thinking", thinking);
+  els.processToast.classList.toggle("has-action", action);
+  els.processToast.setAttribute("aria-hidden", "false");
+}
+
+function hideProcessToast(delay = 0) {
+  if (!els.processToast) return;
+  window.setTimeout(() => {
+    els.processToast.classList.remove("is-visible", "is-thinking", "has-action");
+    els.processToast.setAttribute("aria-hidden", "true");
+  }, delay);
+}
+
+function markProcessStage(stepName, title, copy) {
+  document.body.dataset.processStage = stepName;
+  showProcessToast(title, copy, { thinking: true });
 }
 
 function renderProductModule(moduleKey = "perception") {
@@ -366,6 +393,13 @@ function setActiveStep(stepName) {
     rwa: "financeSection",
   };
   if (sectionByStep[stepName]) openWorkSection(sectionByStep[stepName]);
+  const messages = {
+    ocr: ["正在识别单据", "系统正在读取上传文件并抽取关键字段。"],
+    vl: ["正在视觉复核", "系统正在复核遮挡、低置信字段和单据一致性。"],
+    rag: ["正在进行风险判断", "系统正在结合货物、航线和合规规则生成风险证据。"],
+    rwa: ["正在计算融资建议", "系统正在计算 LTV、可融资额和资产评级。"],
+  };
+  if (messages[stepName]) markProcessStage(stepName, messages[stepName][0], messages[stepName][1]);
 }
 
 function updateRouteStatus({
@@ -508,6 +542,11 @@ function applyEventRepricing(eventResult) {
     ? `事件已触发重定价：LTV ${Math.round(nextFinance.ltv * 100)}%，可融资额 ${formatCurrency(nextLoan)}，转让锁已开启。`
     : `事件已确认稳定：LTV ${Math.round(nextFinance.ltv * 100)}%，可融资额 ${formatCurrency(nextLoan)}。`;
   pushTimeline("事件重定价", `LTV ${Math.round(nextFinance.ltv * 100)}%，融资额 ${formatCurrency(nextLoan)}，评级 ${nextFinance.rating}`, "REPRICE");
+  showProcessToast(
+    "融资建议已动态调整",
+    `LTV 调整为 ${Math.round(nextFinance.ltv * 100)}%，可融资额更新为 ${formatCurrency(nextLoan)}。`,
+    { thinking: false, action: true },
+  );
   return { risk: nextRisk, finance: nextFinance, loan: nextLoan };
 }
 
@@ -666,6 +705,7 @@ async function runVisionAudit(documentData, fields) {
 
 async function runReview() {
   const start = performance.now();
+  showProcessToast("正在启动审单链路", "系统正在准备单据识别、视觉复核和风险判断。", { thinking: true });
   els.runBtn.disabled = true;
   els.runBtn.innerHTML = `${PLAY_ICON} 审单中`;
   const mode = endpointMode() ? "接口识别模式" : "演示模式";
@@ -774,9 +814,12 @@ async function runReview() {
     els.simulateNewsBtn.disabled = false;
     if (ocr.warning) pushTimeline("后端代理", ocr.warning, "FALLBACK");
     pushTimeline("动态 RWA 治理", `事件监听建议 LTV ${Math.round(finance.ltv * 100)}%，评级 ${finance.rating}`, "READY");
+    showProcessToast("融资建议已生成", `建议 LTV ${Math.round(finance.ltv * 100)}%，可融资额 ${formatCurrency(loan)}。`, { thinking: false, action: true });
+    hideProcessToast(5200);
 
     els.latencyValue.textContent = `${Math.round(performance.now() - start)} ms`;
   } catch (error) {
+    showProcessToast("链路处理异常", error.message, { thinking: false });
     pushTimeline("接口异常", error.message, "ERR");
     els.docStatus.textContent = "接口异常";
     updateDecision({
@@ -942,6 +985,7 @@ els.mintBtn.addEventListener("click", () => {
 
 els.simulateNewsBtn.addEventListener("click", async () => {
   openWorkSection("eventSection");
+  showProcessToast("正在监听在途事件", "系统正在判断事件是否影响资产状态和融资条件。", { thinking: true });
   let rawResult;
   try {
     rawResult = endpointMode()
@@ -1008,6 +1052,14 @@ els.moduleJumpBtn.addEventListener("click", () => {
   openWorkSection(els.moduleJumpBtn.dataset.section || "documentSection");
   focusWorkbenchPanel(els.moduleJumpBtn.dataset.target || "documentPanel");
 });
+
+if (els.processToastAction) {
+  els.processToastAction.addEventListener("click", () => {
+    openWorkSection("financeSection", { scroll: true });
+    focusWorkbenchPanel("financePanel");
+    hideProcessToast(600);
+  });
+}
 
 renderFields();
 renderTimeline();
