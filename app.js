@@ -63,6 +63,10 @@ const state = {
   riskScore: 0,
   ltv: 0,
   rating: "--",
+  loan: 0,
+  baseFinance: null,
+  activeRisk: null,
+  activeFinance: null,
   timeline: [],
   extractedJson: null,
   complianceReport: null,
@@ -418,7 +422,93 @@ function renderFinance(result) {
   els.ratingValue.textContent = result.rating;
   els.assetState.textContent = "可确权";
   els.mintBtn.disabled = false;
+  state.ltv = result.ltv;
+  state.rating = result.rating;
+  state.loan = loan;
+  state.activeFinance = { ...result };
   return loan;
+}
+
+function applyEventRepricing(eventResult) {
+  const baseFinance = state.baseFinance || state.activeFinance || { ltv: state.ltv || 0.7, rating: state.rating || "AA" };
+  const currentRisk = state.activeRisk || { score: state.riskScore || 48, level: els.riskLevel.textContent || "中风险", alerts: [] };
+  const elevated = Boolean(eventResult.transferLocked);
+  const riskDelta = elevated ? 18 : -4;
+  const nextRiskScore = Math.max(18, Math.min(88, Math.round(currentRisk.score + riskDelta)));
+  const nextRisk = {
+    ...currentRisk,
+    score: nextRiskScore,
+    level: nextRiskScore >= 70 ? "高风险" : nextRiskScore >= 45 ? "中风险" : "低风险",
+    alerts: [
+      ...(currentRisk.alerts || []),
+      elevated
+        ? `事件监听提示：${eventResult.reason}，需下调融资解锁比例并开启转让锁。`
+        : `事件监听提示：${eventResult.reason}，资产可维持原授信路径。`,
+    ].slice(-4),
+  };
+  const nextFinance = {
+    ltv: elevated ? Math.max(0.52, Math.min(baseFinance.ltv, eventResult.financingUnlocked || 0.6)) : Math.min(0.82, baseFinance.ltv + 0.03),
+    rating: elevated ? (nextRiskScore >= 70 ? "BBB" : "A-") : baseFinance.rating,
+  };
+  const nextLoan = renderFinance(nextFinance);
+  state.riskScore = nextRisk.score;
+  state.activeRisk = nextRisk;
+  renderRisk(nextRisk);
+  els.decisionRisk.textContent = `${nextRisk.score} / 100`;
+  els.decisionExposure.textContent = formatCurrency(nextLoan);
+  updateDecision({
+    stateLabel: elevated ? "事件已重定价" : "事件已确认",
+    title: elevated ? "在途事件触发授信重定价" : "资产状态维持稳定",
+    copy: elevated
+      ? `事件监听识别到${eventResult.reason}，系统已将建议 LTV 调整为 ${Math.round(nextFinance.ltv * 100)}%，可融资额更新为 ${formatCurrency(nextLoan)}，并开启资产转让锁。`
+      : `事件监听未识别严重扰动，建议 LTV 更新为 ${Math.round(nextFinance.ltv * 100)}%，可融资额更新为 ${formatCurrency(nextLoan)}。`,
+    action: elevated ? "下一步：复核授信额度与补充事件证明" : "下一步：维持授信并持续监听事件",
+    mode: els.modeBadge.textContent,
+    confidence: els.decisionConfidence.textContent,
+    risk: `${nextRisk.score} / 100`,
+    exposure: formatCurrency(nextLoan),
+  });
+  renderEvidence(
+    [
+      {
+        title: "单据可信度",
+        tag: `${Math.round((state.confidence || 0.982) * 100)}%`,
+        detail: `提单号 ${state.fields.blNumber || "--"} 与关键字段已完成结构化抽取与视觉复核。`,
+      },
+      {
+        title: "事件影响",
+        tag: elevated ? "重定价" : "稳定",
+        detail: eventResult.reason,
+      },
+      {
+        title: "融资额度",
+        tag: `${Math.round(nextFinance.ltv * 100)}% LTV`,
+        detail: `可融资额已动态调整为 ${formatCurrency(nextLoan)}，资产评级更新为 ${nextFinance.rating}。`,
+      },
+      {
+        title: "链上状态",
+        tag: eventResult.transferLocked ? "LOCKED" : "OPEN",
+        detail: eventResult.contractInstruction,
+      },
+    ],
+    "事件后更新",
+  );
+  state.extractedJson = buildExtractedJson({ risk: nextRisk, finance: nextFinance, loan: nextLoan });
+  if (state.credentialId && state.extractedJson) {
+    state.extractedJson.credential = {
+      id: state.credentialId,
+      status: elevated ? "风险升高" : "在途中",
+      financingUnlocked: `${Math.round((eventResult.financingUnlocked || nextFinance.ltv) * 100)}%`,
+      transferLocked: eventResult.transferLocked,
+      auditLog: "Event-driven repricing applied after oracle status update",
+    };
+  }
+  state.complianceReport = buildComplianceReport(nextRisk, nextFinance, nextLoan);
+  els.credentialNote.textContent = elevated
+    ? `事件已触发重定价：LTV ${Math.round(nextFinance.ltv * 100)}%，可融资额 ${formatCurrency(nextLoan)}，转让锁已开启。`
+    : `事件已确认稳定：LTV ${Math.round(nextFinance.ltv * 100)}%，可融资额 ${formatCurrency(nextLoan)}。`;
+  pushTimeline("事件重定价", `LTV ${Math.round(nextFinance.ltv * 100)}%，融资额 ${formatCurrency(nextLoan)}，评级 ${nextFinance.rating}`, "REPRICE");
+  return { risk: nextRisk, finance: nextFinance, loan: nextLoan };
 }
 
 function inferRisk(fields) {
@@ -619,6 +709,7 @@ async function runReview() {
     await sleep(640);
     const risk = ocr.risk || inferRisk(state.fields);
     state.riskScore = risk.score;
+    state.activeRisk = risk;
     renderRisk(risk);
     els.decisionRisk.textContent = `${risk.score} / 100`;
     pushTimeline("合规校验", `${risk.level}，生成 ${risk.alerts.length} 条合规提示`, risk.level);
@@ -626,6 +717,7 @@ async function runReview() {
     setActiveStep("rwa");
     els.docStatus.textContent = "资产定价完成";
     const finance = ocr.finance || inferFinance(state.riskScore);
+    state.baseFinance = { ...finance };
     const loan = renderFinance(finance);
     renderOracleState(ocr.oracle || { assetStatus: "在途中", transferLocked: false, financingUnlocked: 0.6 });
     updateCredentialVisual("pricing");
@@ -732,6 +824,12 @@ function resetApp() {
   state.fields = { ...demoFields };
   state.confidence = 0;
   state.riskScore = 0;
+  state.ltv = 0;
+  state.rating = "--";
+  state.loan = 0;
+  state.baseFinance = null;
+  state.activeRisk = null;
+  state.activeFinance = null;
   state.timeline = [];
   state.extractedJson = null;
   state.complianceReport = null;
@@ -862,10 +960,14 @@ els.simulateNewsBtn.addEventListener("click", async () => {
     signal: result.riskLevel === "MEDIUM" ? "中风险" : "低风险",
   });
   if (result.transferLocked) updateCredentialVisual("elevated", state.credentialId || "风险升高，等待凭证");
+  const repriced = applyEventRepricing(result);
   els.oracleOutput.textContent = JSON.stringify({
     风险等级: result.riskLevel === "MEDIUM" ? "中风险" : "低风险",
     原因: result.reason,
     状态更新指令: result.contractInstruction,
+    更新后LTV: `${Math.round(repriced.finance.ltv * 100)}%`,
+    更新后可融资额: formatCurrency(repriced.loan),
+    更新后评级: repriced.finance.rating,
   }, null, 2);
   pushTimeline("事件监听", `${result.riskLevel === "MEDIUM" ? "中风险" : "低风险"} / ${result.reason}`, "事件");
 });
